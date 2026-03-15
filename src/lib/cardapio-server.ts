@@ -47,6 +47,8 @@ export async function getCardapioFromDb(full = false): Promise<CardapioData> {
       endereco: "",
       horario: "",
       logo_url: null,
+      hora_abertura: null,
+      hora_fechamento: null,
     };
 
     const categoriasData = categoriasRes.data || [];
@@ -94,6 +96,35 @@ export async function getCardapioFromDb(full = false): Promise<CardapioData> {
         ordem: a.ordem,
       }));
 
+    let combos: CardapioData["combos"] = [];
+    try {
+      const combosRes = full
+        ? await supabase.from("combos").select("*").order("ordem")
+        : await supabase.from("combos").select("*").eq("ativo", true).order("ordem");
+      const combosData = combosRes.data || [];
+      const itensRes = await supabase.from("combo_itens").select("combo_id, produto_id, quantidade, produtos(nome)");
+      const itensData = (itensRes.data || []) as { combo_id: string; produto_id: string; quantidade: number; produtos: { nome: string } | null }[];
+      const produtosMap = new Map((produtosRes.data || []).map((p: Record<string, string>) => [p.id, p.nome]));
+      combos = combosData.map((c: Record<string, unknown>) => ({
+        id: c.id as string,
+        nome: c.nome as string,
+        descricao: (c.descricao as string) || undefined,
+        preco: parseFloat(String(c.preco)),
+        imagem: (c.imagem_url as string) || undefined,
+        ativo: c.ativo !== false,
+        ordem: c.ordem as number,
+        itens: itensData
+          .filter((i) => i.combo_id === c.id)
+          .map((i) => ({
+            produtoId: i.produto_id,
+            produtoNome: (i.produtos?.nome ?? produtosMap.get(i.produto_id)) || "—",
+            quantidade: i.quantidade || 1,
+          })),
+      }));
+    } catch {
+      combos = [];
+    }
+
     return {
       config: {
         nome: config.nome,
@@ -101,11 +132,14 @@ export async function getCardapioFromDb(full = false): Promise<CardapioData> {
         endereco: config.endereco,
         horario: config.horario,
         logoUrl: config.logo_url || null,
+        horaAbertura: config.hora_abertura ?? null,
+        horaFechamento: config.hora_fechamento ?? null,
       },
       categorias,
       produtos: produtos as CardapioData["produtos"],
       promocoes: promocoes as CardapioData["promocoes"],
       acrescimos,
+      combos,
     };
   } catch (err) {
     console.error("getCardapioFromDb error:", err);

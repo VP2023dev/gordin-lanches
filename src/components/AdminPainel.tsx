@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import type { CardapioData } from "@/lib/data";
-import type { Categoria, Produto, Promocao, ConfigLoja, Acrescimo } from "@/types";
+import type { Categoria, Produto, Promocao, ConfigLoja, Acrescimo, Combo } from "@/types";
 
 interface AdminPainelProps {
   onSair: () => void;
@@ -11,7 +11,7 @@ interface AdminPainelProps {
 export function AdminPainel({ onSair }: AdminPainelProps) {
   const [data, setData] = useState<CardapioData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [aba, setAba] = useState<"config" | "categorias" | "produtos" | "acrescimos" | "promocoes">("config");
+  const [aba, setAba] = useState<"config" | "categorias" | "produtos" | "acrescimos" | "promocoes" | "pedidos" | "combos" | "avaliacoes">("config");
 
   const [erro, setErro] = useState<string | null>(null);
 
@@ -32,7 +32,7 @@ export function AdminPainel({ onSair }: AdminPainelProps) {
   }, []);
 
   const salvarPorTipo = async (
-    tipo: "config" | "categorias" | "produtos" | "acrescimos" | "promocoes",
+    tipo: "config" | "categorias" | "produtos" | "acrescimos" | "promocoes" | "combos",
     dados: unknown
   ) => {
     const token = typeof window !== "undefined" ? sessionStorage.getItem("admin_token") : null;
@@ -89,6 +89,12 @@ export function AdminPainel({ onSair }: AdminPainelProps) {
     salvarPorTipo("promocoes", promocoes);
   };
 
+  const atualizarCombos = (combos: Combo[]) => {
+    if (!data) return;
+    setData({ ...data, combos });
+    salvarPorTipo("combos", combos);
+  };
+
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-amber-50">
@@ -137,7 +143,7 @@ export function AdminPainel({ onSair }: AdminPainelProps) {
           </div>
         </div>
         <nav className="mt-3 flex gap-2 overflow-x-auto pb-1">
-          {(["config", "categorias", "produtos", "acrescimos", "promocoes"] as const).map(
+          {(["config", "categorias", "produtos", "acrescimos", "promocoes", "pedidos", "combos", "avaliacoes"] as const).map(
             (a) => (
               <button
                 key={a}
@@ -151,6 +157,9 @@ export function AdminPainel({ onSair }: AdminPainelProps) {
                 {a === "produtos" && "Produtos"}
                 {a === "acrescimos" && "Acréscimos"}
                 {a === "promocoes" && "Promoções"}
+                {a === "pedidos" && "Pedidos"}
+                {a === "combos" && "Combos"}
+                {a === "avaliacoes" && "Avaliações"}
               </button>
             )
           )}
@@ -186,6 +195,15 @@ export function AdminPainel({ onSair }: AdminPainelProps) {
             onSalvar={atualizarPromocoes}
           />
         )}
+        {aba === "pedidos" && <AdminPedidos />}
+        {aba === "combos" && (
+          <AdminCombos
+            combos={data.combos ?? []}
+            produtos={data.produtos}
+            onSalvar={atualizarCombos}
+          />
+        )}
+        {aba === "avaliacoes" && <AdminAvaliacoes />}
       </main>
     </div>
   );
@@ -278,7 +296,7 @@ function AdminConfig({
         />
       </div>
       <div>
-        <label className="block text-sm text-gray-600">Horário</label>
+        <label className="block text-sm text-gray-600">Horário (texto exibido)</label>
         <input
           value={form.horario || ""}
           onChange={(e) => setForm({ ...form, horario: e.target.value })}
@@ -286,6 +304,27 @@ function AdminConfig({
           placeholder="Seg a Dom: 11h às 23h"
         />
       </div>
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label className="block text-sm text-gray-600">Abertura (Aberto agora)</label>
+          <input
+            type="time"
+            value={form.horaAbertura ?? ""}
+            onChange={(e) => setForm({ ...form, horaAbertura: e.target.value || null })}
+            className="mt-1 w-full rounded-lg border border-amber-300 px-3 py-2"
+          />
+        </div>
+        <div>
+          <label className="block text-sm text-gray-600">Fechamento</label>
+          <input
+            type="time"
+            value={form.horaFechamento ?? ""}
+            onChange={(e) => setForm({ ...form, horaFechamento: e.target.value || null })}
+            className="mt-1 w-full rounded-lg border border-amber-300 px-3 py-2"
+          />
+        </div>
+      </div>
+      <p className="text-xs text-gray-500">Se preenchidos, o header mostra &quot;Aberto&quot;/&quot;Fechado&quot; e o botão de pedido fica desabilitado quando fechado.</p>
       <button
         onClick={() => onSalvar(form)}
         className="rounded-lg bg-amber-600 px-4 py-2 text-white hover:bg-amber-700"
@@ -774,6 +813,271 @@ function AdminPromocoes({
       >
         Salvar
       </button>
+    </div>
+  );
+}
+
+function AdminPedidos() {
+  const [pedidos, setPedidos] = useState<{ id: string; createdAt: string; nomeCliente: string | null; itens: string; total: number; tipoEntrega: string; formaPagamento: string | null; endereco: string | null }[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [hoje, setHoje] = useState(true);
+
+  const carregar = useCallback(() => {
+    setLoading(true);
+    const token = typeof window !== "undefined" ? sessionStorage.getItem("admin_token") : null;
+    fetch(`/api/pedidos?hoje=${hoje ? "1" : "0"}`, {
+      headers: { Authorization: `Bearer ${token || ""}` },
+    })
+      .then((r) => r.json())
+      .then((data) => setPedidos(data.pedidos || []))
+      .catch(() => setPedidos([]))
+      .finally(() => setLoading(false));
+  }, [hoje]);
+
+  useEffect(() => {
+    carregar();
+  }, [carregar]);
+
+  const formatDate = (s: string) => {
+    const d = new Date(s);
+    return d.toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
+  };
+
+  const formatPrice = (n: number) => new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(n);
+
+  return (
+    <div className="space-y-4 rounded-xl border border-amber-200 bg-white p-4">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h2 className="font-bold text-amber-900">Pedidos</h2>
+        <label className="flex items-center gap-2">
+          <input type="checkbox" checked={hoje} onChange={(e) => setHoje(e.target.checked)} />
+          <span className="text-sm">Só hoje</span>
+        </label>
+        <button onClick={carregar} className="rounded-lg bg-amber-100 px-3 py-1.5 text-sm text-amber-800 hover:bg-amber-200">
+          Atualizar
+        </button>
+      </div>
+      {loading ? (
+        <p className="text-sm text-gray-500">Carregando...</p>
+      ) : pedidos.length === 0 ? (
+        <p className="text-sm text-gray-500">Nenhum pedido encontrado.</p>
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-amber-200 text-left">
+                <th className="p-2">Data/Hora</th>
+                <th className="p-2">Cliente</th>
+                <th className="p-2">Itens</th>
+                <th className="p-2">Total</th>
+                <th className="p-2">Entrega</th>
+              </tr>
+            </thead>
+            <tbody>
+              {pedidos.map((p) => {
+                let itensParsed: { nome?: string; quantidade?: number; observacao?: string; precoLinha?: number }[] = [];
+                try {
+                  itensParsed = typeof p.itens === "string" ? JSON.parse(p.itens) : p.itens;
+                } catch {}
+                const resumo = itensParsed.map((i) => `${i.quantidade}x ${i.nome}`).join("; ") || "—";
+                return (
+                  <tr key={p.id} className="border-b border-amber-100">
+                    <td className="p-2">{formatDate(p.createdAt)}</td>
+                    <td className="p-2">{p.nomeCliente || "—"}</td>
+                    <td className="max-w-[200px] truncate p-2" title={resumo}>{resumo}</td>
+                    <td className="p-2 font-medium">{formatPrice(Number(p.total))}</td>
+                    <td className="p-2">{p.tipoEntrega === "entrega" ? "Entrega" : "Retirada"}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function AdminCombos({
+  combos,
+  produtos,
+  onSalvar,
+}: {
+  combos: Combo[];
+  produtos: Produto[];
+  onSalvar: (c: Combo[]) => void;
+}) {
+  const [lista, setLista] = useState(combos);
+
+  useEffect(() => {
+    setLista(combos);
+  }, [combos]);
+
+  const adicionar = () => {
+    setLista([
+      ...lista,
+      {
+        id: crypto.randomUUID(),
+        nome: "Novo combo",
+        descricao: "",
+        preco: 0,
+        ativo: true,
+        ordem: lista.length,
+        itens: [],
+      },
+    ]);
+  };
+
+  const remover = (id: string) => setLista(lista.filter((c) => c.id !== id));
+
+  const atualizar = (id: string, field: keyof Combo, value: unknown) => {
+    setLista(lista.map((c) => (c.id === id ? { ...c, [field]: value } : c)));
+  };
+
+  const addItem = (comboId: string) => {
+    const primeiro = produtos[0]?.id;
+    if (!primeiro) return;
+    setLista(
+      lista.map((c) =>
+        c.id === comboId
+          ? { ...c, itens: [...c.itens, { produtoId: primeiro, produtoNome: produtos.find((p) => p.id === primeiro)?.nome || "", quantidade: 1 }] }
+          : c
+      )
+    );
+  };
+
+  const updateComboItem = (comboId: string, idx: number, field: "produtoId" | "quantidade", value: string | number) => {
+    setLista(
+      lista.map((c) => {
+        if (c.id !== comboId) return c;
+        const next = [...c.itens];
+        if (field === "produtoId") {
+          const nome = produtos.find((p) => p.id === value)?.nome ?? "";
+          next[idx] = { ...next[idx], produtoId: value as string, produtoNome: nome, quantidade: next[idx].quantidade };
+        } else next[idx] = { ...next[idx], quantidade: Number(value) || 1 };
+        return { ...c, itens: next };
+      })
+    );
+  };
+
+  const removeComboItem = (comboId: string, idx: number) => {
+    setLista(lista.map((c) => (c.id === comboId ? { ...c, itens: c.itens.filter((_, i) => i !== idx) } : c)));
+  };
+
+  return (
+    <div className="space-y-4 rounded-xl border border-amber-200 bg-white p-4">
+      <div className="flex items-center justify-between">
+        <h2 className="font-bold text-amber-900">Combos</h2>
+        <button onClick={adicionar} className="rounded-lg bg-green-600 px-3 py-1 text-sm text-white">
+          + Novo combo
+        </button>
+      </div>
+      <div className="space-y-4">
+        {lista.map((c) => (
+          <div key={c.id} className="rounded-lg border border-amber-100 p-4 space-y-2">
+            <div className="flex flex-wrap gap-2">
+              <input
+                value={c.nome}
+                onChange={(e) => atualizar(c.id, "nome", e.target.value)}
+                placeholder="Nome do combo"
+                className="min-w-[180px] flex-1 rounded border border-amber-200 px-2 py-1.5"
+              />
+              <input
+                type="number"
+                step="0.01"
+                value={c.preco}
+                onChange={(e) => atualizar(c.id, "preco", parseFloat(e.target.value) || 0)}
+                placeholder="Preço"
+                className="w-24 rounded border border-amber-200 px-2 py-1.5"
+              />
+              <label className="flex items-center gap-1">
+                <input type="checkbox" checked={c.ativo} onChange={(e) => atualizar(c.id, "ativo", e.target.checked)} />
+                <span className="text-sm">Ativo</span>
+              </label>
+              <button onClick={() => remover(c.id)} className="rounded bg-red-100 px-2 py-1 text-sm text-red-700">
+                Excluir
+              </button>
+            </div>
+            <p className="text-xs text-gray-500">Itens do combo:</p>
+            <div className="space-y-1 pl-2">
+              {c.itens.map((it, idx) => (
+                <div key={idx} className="flex items-center gap-2">
+                  <select
+                    value={it.produtoId}
+                    onChange={(e) => updateComboItem(c.id, idx, "produtoId", e.target.value)}
+                    className="rounded border border-amber-200 px-2 py-1 text-sm"
+                  >
+                    {produtos.map((p) => (
+                      <option key={p.id} value={p.id}>{p.nome}</option>
+                    ))}
+                  </select>
+                  <input
+                    type="number"
+                    min={1}
+                    value={it.quantidade}
+                    onChange={(e) => updateComboItem(c.id, idx, "quantidade", e.target.value)}
+                    className="w-14 rounded border border-amber-200 px-2 py-1 text-sm"
+                  />
+                  <button type="button" onClick={() => removeComboItem(c.id, idx)} className="text-red-600 text-sm">Remover</button>
+                </div>
+              ))}
+              <button type="button" onClick={() => addItem(c.id)} className="text-sm text-amber-700 hover:underline">+ Adicionar item</button>
+            </div>
+          </div>
+        ))}
+      </div>
+      <button onClick={() => onSalvar(lista)} className="rounded-lg bg-amber-600 px-4 py-2 text-white hover:bg-amber-700">
+        Salvar combos
+      </button>
+    </div>
+  );
+}
+
+function AdminAvaliacoes() {
+  const [avaliacoes, setAvaliacoes] = useState<{ id: string; createdAt: string; nota: number; comentario: string | null }[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const carregar = useCallback(() => {
+    setLoading(true);
+    const token = typeof window !== "undefined" ? sessionStorage.getItem("admin_token") : null;
+    fetch("/api/avaliacoes", { headers: { Authorization: `Bearer ${token || ""}` } })
+      .then((r) => r.json())
+      .then((data) => setAvaliacoes(data.avaliacoes || []))
+      .catch(() => setAvaliacoes([]))
+      .finally(() => setLoading(false));
+  }, []);
+
+  useEffect(() => {
+    carregar();
+  }, [carregar]);
+
+  const formatDate = (s: string) => new Date(s).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", year: "2-digit", hour: "2-digit", minute: "2-digit" });
+
+  return (
+    <div className="space-y-4 rounded-xl border border-amber-200 bg-white p-4">
+      <div className="flex items-center justify-between">
+        <h2 className="font-bold text-amber-900">Avaliações</h2>
+        <button onClick={carregar} className="rounded-lg bg-amber-100 px-3 py-1.5 text-sm text-amber-800 hover:bg-amber-200">
+          Atualizar
+        </button>
+      </div>
+      {loading ? (
+        <p className="text-sm text-gray-500">Carregando...</p>
+      ) : avaliacoes.length === 0 ? (
+        <p className="text-sm text-gray-500">Nenhuma avaliação ainda.</p>
+      ) : (
+        <ul className="space-y-3">
+          {avaliacoes.map((a) => (
+            <li key={a.id} className="rounded-lg border border-amber-100 p-3">
+              <div className="flex items-center justify-between gap-2">
+                <span className="font-medium">{["", "★", "★★", "★★★", "★★★★", "★★★★★"][a.nota] || a.nota + " estrelas"}</span>
+                <span className="text-xs text-gray-500">{formatDate(a.createdAt)}</span>
+              </div>
+              {a.comentario && <p className="mt-1 text-sm text-gray-600">{a.comentario}</p>}
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }

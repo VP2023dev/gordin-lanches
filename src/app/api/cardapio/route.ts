@@ -37,6 +37,8 @@ export async function GET(request: Request) {
       whatsapp: "5517991449785",
       endereco: "",
       horario: "",
+      hora_abertura: null,
+      hora_fechamento: null,
     };
 
     const categoriasData = categoriasRes.data || [];
@@ -81,6 +83,35 @@ export async function GET(request: Request) {
       ordem: a.ordem,
     }));
 
+    let combos: { id: string; nome: string; descricao?: string; preco: number; imagem?: string; ativo: boolean; ordem: number; itens: { produtoId: string; produtoNome: string; quantidade: number }[] }[] = [];
+    try {
+      const combosRes = full
+        ? await supabase.from("combos").select("*").order("ordem")
+        : await supabase.from("combos").select("*").eq("ativo", true).order("ordem");
+      const combosData = combosRes.data || [];
+      const itensRes = await supabase.from("combo_itens").select("combo_id, produto_id, quantidade, produtos(nome)");
+      const itensData = itensRes.data || [];
+      const produtosMap = new Map((produtosRes.data || []).map((p: { id: string; nome: string }) => [p.id, p.nome]));
+      combos = combosData.map((c: { id: string; nome: string; descricao?: string; preco: string; imagem_url?: string; ativo?: boolean; ordem: number }) => ({
+        id: c.id,
+        nome: c.nome,
+        descricao: c.descricao || undefined,
+        preco: parseFloat(c.preco),
+        imagem: c.imagem_url || undefined,
+        ativo: c.ativo !== false,
+        ordem: c.ordem,
+        itens: (itensData as { combo_id: string; produto_id: string; quantidade: number; produtos: { nome: string } | null }[])
+          .filter((i) => i.combo_id === c.id)
+          .map((i) => ({
+            produtoId: i.produto_id,
+            produtoNome: (i.produtos?.nome ?? produtosMap.get(i.produto_id)) || "—",
+            quantidade: i.quantidade || 1,
+          })),
+      }));
+    } catch {
+      combos = [];
+    }
+
     return NextResponse.json({
       config: {
         nome: config.nome,
@@ -88,11 +119,14 @@ export async function GET(request: Request) {
         endereco: config.endereco,
         horario: config.horario,
         logoUrl: config.logo_url || null,
+        horaAbertura: config.hora_abertura ?? null,
+        horaFechamento: config.hora_fechamento ?? null,
       },
       categorias,
       produtos,
       promocoes,
       acrescimos,
+      combos,
     });
   } catch (error) {
     console.error("Erro ao carregar cardápio:", error);

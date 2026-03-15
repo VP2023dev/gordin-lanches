@@ -1,4 +1,4 @@
-import type { ConfigLoja, Categoria, Produto, Promocao, Acrescimo } from "@/types";
+import type { ConfigLoja, Categoria, Produto, Promocao, Acrescimo, Combo } from "@/types";
 import { getCardapioFromDb } from "./cardapio-server";
 
 export interface CardapioData {
@@ -7,6 +7,7 @@ export interface CardapioData {
   produtos: Produto[];
   promocoes: Promocao[];
   acrescimos?: Acrescimo[];
+  combos?: Combo[];
 }
 
 /** Usado na página inicial (servidor): busca direto do Supabase, sem depender da API. */

@@ -43,17 +43,30 @@ export default function FinalizarPedidoPage() {
     (tipoEntrega === "retirada" ||
       (endereco.rua.trim() && endereco.bairro.trim() && endereco.numero.trim()));
 
-  const handleFinalizar = () => {
+  const handleFinalizar = async () => {
     if (!config || !podeFinalizar) return;
+
+    const resumoItens = itens.map((i) => {
+      const valorLinha = totalItemLinha(i);
+      const nome = i.combo ? i.combo.nome : i.produto?.nome ?? "";
+      return {
+        nome,
+        quantidade: i.quantidade,
+        observacao: i.observacao?.trim() || null,
+        extras: i.acrescimos.length > 0 ? i.acrescimos.map((a) => `${a.quantidade}x ${a.nome}`) : [],
+        precoLinha: valorLinha,
+      };
+    });
 
     const linhasItens = itens.map((i) => {
       const valorLinha = totalItemLinha(i);
+      const nome = i.combo ? i.combo.nome : i.produto?.nome ?? "";
       const extrasTexto =
         i.acrescimos.length > 0
           ? ` (${i.acrescimos.map((a) => `${a.quantidade}x ${a.nome}`).join(", ")})`
           : "";
       const obsTexto = i.observacao?.trim() ? ` | Obs: ${i.observacao.trim()}` : "";
-      return `${i.quantidade}x ${i.produto.nome}${extrasTexto}${obsTexto} - R$ ${valorLinha.toFixed(2)}`;
+      return `${i.quantidade}x ${nome}${extrasTexto}${obsTexto} - R$ ${valorLinha.toFixed(2)}`;
     });
 
     const linhas = [
@@ -83,6 +96,23 @@ export default function FinalizarPedidoPage() {
     linhas.push("");
     linhas.push(`*Total: R$ ${totalGeral.toFixed(2)}*`);
 
+    try {
+      await fetch("/api/pedidos", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          nomeCliente: nomeCliente.trim() || null,
+          itens: resumoItens,
+          total: totalGeral,
+          tipoEntrega,
+          formaPagamento,
+          endereco: tipoEntrega === "entrega" ? endereco : null,
+        }),
+      });
+    } catch {
+      // segue mesmo se falhar o registro (pedido vai no WhatsApp)
+    }
+
     const msg = encodeURIComponent(linhas.join("\n"));
     const url = `https://wa.me/${config.whatsapp.replace(/\D/g, "")}?text=${msg}`;
     window.open(url, "_blank");
@@ -109,12 +139,20 @@ export default function FinalizarPedidoPage() {
           <p className="mt-2 text-[var(--muted)]">
             Seu pedido foi enviado para o WhatsApp. Aguarde a confirmação.
           </p>
-          <Link
-            href="/"
-            className="btn-accent mt-6 inline-block rounded-xl px-6 py-3.5 font-bold text-white transition hover:brightness-110"
-          >
-            Voltar ao cardápio
-          </Link>
+          <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center">
+            <Link
+              href="/"
+              className="btn-accent inline-block rounded-xl px-6 py-3.5 font-bold text-white transition hover:brightness-110"
+            >
+              Voltar ao cardápio
+            </Link>
+            <Link
+              href="/avaliar"
+              className="inline-block rounded-xl border-2 border-[var(--accent)] bg-transparent px-6 py-3.5 font-bold text-[var(--accent)] transition hover:bg-[var(--accent-soft)]"
+            >
+              Avalie sua experiência
+            </Link>
+          </div>
         </div>
       </div>
     );
@@ -173,15 +211,18 @@ export default function FinalizarPedidoPage() {
         <ul className="space-y-4">
           {itens.map((item, index) => {
             const valorLinha = totalItemLinha(item);
+            const nome = item.combo ? item.combo.nome : item.produto?.nome ?? "";
+            const key = item.combo ? item.combo.id : item.produto?.id ?? index;
             return (
               <li
-                key={`${item.produto.id}-${index}`}
+                key={`${key}-${index}`}
                 className="border-b border-[var(--border)] pb-4 last:border-0 last:pb-0"
               >
                 <div className="flex items-start justify-between gap-4">
                   <div className="min-w-0 flex-1">
                     <p className="font-medium text-[var(--foreground)]">
-                      {item.produto.nome}
+                      {nome}
+                      {item.combo && <span className="ml-1 text-xs text-[var(--muted)]">(combo)</span>}
                     </p>
                     {item.acrescimos.length > 0 && (
                       <p className="text-sm text-[var(--muted)]">

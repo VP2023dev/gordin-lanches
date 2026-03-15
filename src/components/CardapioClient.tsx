@@ -3,13 +3,16 @@
 import { useState } from "react";
 import { PromocoesDia } from "./PromocoesDia";
 import { CategoriaSection } from "./CategoriaSection";
-import type { Produto, Categoria, Promocao, Acrescimo } from "@/types";
+import { useCart } from "@/context/CartContext";
+import { formatPrice } from "@/lib/data";
+import type { Produto, Categoria, Promocao, Acrescimo, Combo } from "@/types";
 
 interface CardapioClientProps {
   categorias: Categoria[];
   produtos: Produto[];
   promocoes: Promocao[];
   acrescimos: Acrescimo[];
+  combos?: Combo[];
   config: { nome: string; whatsapp: string };
 }
 
@@ -18,7 +21,9 @@ export function CardapioClient({
   produtos,
   promocoes,
   acrescimos = [],
+  combos = [],
 }: CardapioClientProps) {
+  const { addCombo } = useCart();
   const [busca, setBusca] = useState("");
   const [categoriaFiltro, setCategoriaFiltro] = useState<string | null>(null);
 
@@ -88,6 +93,41 @@ export function CardapioClient({
             ))}
           </div>
         </div>
+
+        {/* Seção Combos */}
+        {combos.length > 0 && (
+          <section className="px-4 py-6">
+            <h2 className="text-xl font-extrabold text-[var(--foreground)] mb-4">🍔 Combos</h2>
+            <ul className="space-y-3">
+              {combos.filter((c) => c.ativo).map((combo) => (
+                <li
+                  key={combo.id}
+                  className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border-2 border-[var(--card-border)] bg-[var(--card-bg)] p-4 shadow-[var(--shadow)] transition hover:shadow-[var(--shadow-hover)]"
+                >
+                  <div className="min-w-0 flex-1">
+                    <p className="font-bold text-[var(--foreground)]">{combo.nome}</p>
+                    {combo.descricao && <p className="text-sm text-[var(--muted)] mt-0.5">{combo.descricao}</p>}
+                    {combo.itens?.length > 0 && (
+                      <p className="text-xs text-[var(--muted)] mt-1">
+                        {combo.itens.map((i) => `${i.quantidade}x ${i.produtoNome}`).join(" + ")}
+                      </p>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="text-lg font-bold text-[var(--accent)]">{formatPrice(combo.preco)}</span>
+                    <button
+                      type="button"
+                      onClick={() => addCombo(combo, 1)}
+                      className="btn-accent rounded-xl px-4 py-2.5 text-sm font-bold text-white shadow-md transition hover:brightness-110"
+                    >
+                      Adicionar
+                    </button>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
 
         {/* Seção Lanches */}
         {categoriasLanchesComProdutos.map((categoria) => (

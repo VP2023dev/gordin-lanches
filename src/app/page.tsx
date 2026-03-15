@@ -12,6 +12,7 @@ export default async function Home() {
       produtos={data.produtos}
       promocoes={data.promocoes}
       acrescimos={data.acrescimos ?? []}
+      combos={data.combos ?? []}
       config={data.config}
     />
   );

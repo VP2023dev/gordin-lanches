@@ -7,29 +7,30 @@ import {
   useMemo,
   useState,
 } from "react";
-import type { Produto } from "@/types";
+import type { Produto, Combo } from "@/types";
 import type { AcrescimoSelecionado } from "@/types";
 
 export interface ItemCarrinho {
-  produto: Produto;
+  produto?: Produto;
+  combo?: Combo;
   quantidade: number;
   acrescimos: AcrescimoSelecionado[];
-  /** Observação do cliente (ex: "sem cebola", "sem tomate") */
   observacao?: string;
 }
 
 export function totalItemLinha(item: ItemCarrinho): number {
+  if (item.combo) return item.combo.preco * item.quantidade;
   const precoUnitario =
-    item.produto.preco +
+    (item.produto?.preco ?? 0) +
     item.acrescimos.reduce((s, a) => s + a.preco * a.quantidade, 0);
   return precoUnitario * item.quantidade;
 }
 
-function mesmaLinha(
+function mesmaLinhaProduto(
   a: ItemCarrinho,
   b: { produto: Produto; acrescimos: AcrescimoSelecionado[] }
 ): boolean {
-  if (a.produto.id !== b.produto.id) return false;
+  if (!a.produto || a.produto.id !== b.produto.id) return false;
   if (a.acrescimos.length !== b.acrescimos.length) return false;
   const sort = (arr: AcrescimoSelecionado[]) =>
     [...arr].sort((x, y) => x.id.localeCompare(y.id));
@@ -45,6 +46,7 @@ interface CartContextValue {
     quantidade?: number,
     acrescimos?: AcrescimoSelecionado[]
   ) => void;
+  addCombo: (combo: Combo, quantidade?: number) => void;
   removeItem: (index: number) => void;
   updateQuantity: (index: number, quantidade: number) => void;
   updateObservation: (index: number, observacao: string) => void;
@@ -67,7 +69,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       const normalizados = acrescimos.filter((a) => a.quantidade > 0);
       setItens((prev) => {
         const idx = prev.findIndex((i) =>
-          mesmaLinha(i, { produto, acrescimos: normalizados })
+          i.produto && mesmaLinhaProduto(i, { produto, acrescimos: normalizados })
         );
         if (idx >= 0) {
           return prev.map((it, i) =>
@@ -84,6 +86,21 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     },
     []
   );
+
+  const addCombo = useCallback((combo: Combo, quantidade = 1) => {
+    setItens((prev) => {
+      const idx = prev.findIndex((i) => i.combo?.id === combo.id);
+      if (idx >= 0) {
+        return prev.map((it, i) =>
+          i === idx ? { ...it, quantidade: it.quantidade + quantidade } : it
+        );
+      }
+      return [
+        ...prev,
+        { combo, quantidade, acrescimos: [], observacao: undefined },
+      ];
+    });
+  }, []);
 
   const removeItem = useCallback((index: number) => {
     setItens((prev) => prev.filter((_, i) => i !== index));
@@ -121,6 +138,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     () => ({
       itens,
       addItem,
+      addCombo,
       removeItem,
       updateQuantity,
       updateObservation,
@@ -128,7 +146,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       totalItens,
       totalPreco,
     }),
-    [itens, addItem, removeItem, updateQuantity, updateObservation, clearCart, totalItens, totalPreco]
+    [itens, addItem, addCombo, removeItem, updateQuantity, updateObservation, clearCart, totalItens, totalPreco]
   );
 
   return (

@@ -8,6 +8,8 @@ interface Config {
   nome: string;
   whatsapp: string;
   logoUrl?: string | null;
+  horaAbertura?: string | null;
+  horaFechamento?: string | null;
 }
 
 export function ConfigShell({ children }: { children: React.ReactNode }) {
@@ -42,7 +44,13 @@ export function ConfigShell({ children }: { children: React.ReactNode }) {
 
   return (
     <>
-      <Header nome={config.nome} whatsapp={config.whatsapp} logoUrl={config.logoUrl} />
+      <Header
+        nome={config.nome}
+        whatsapp={config.whatsapp}
+        logoUrl={config.logoUrl}
+        horaAbertura={config.horaAbertura}
+        horaFechamento={config.horaFechamento}
+      />
       {children}
     </>
   );

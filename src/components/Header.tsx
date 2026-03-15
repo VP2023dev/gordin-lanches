@@ -2,39 +2,57 @@
 
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
+import { isAberto } from "@/lib/horario";
 
 interface HeaderProps {
   nome: string;
   whatsapp: string;
   logoUrl?: string | null;
+  horaAbertura?: string | null;
+  horaFechamento?: string | null;
 }
 
-export function Header({ nome, whatsapp, logoUrl }: HeaderProps) {
+export function Header({ nome, whatsapp, logoUrl, horaAbertura, horaFechamento }: HeaderProps) {
   const { totalItens } = useCart();
+  const aberto = isAberto(horaAbertura, horaFechamento);
   const whatsappLink = `https://wa.me/${whatsapp.replace(/\D/g, "")}`;
+  const mostraStatus = horaAbertura?.trim() && horaFechamento?.trim();
 
   return (
     <header className="sticky top-0 z-50 border-b-2 border-[var(--border-strong)] bg-[var(--card-bg)]/98 shadow-[var(--shadow)] backdrop-blur-md">
       <div className="mx-auto flex max-w-4xl items-center justify-between gap-4 px-4 py-3.5">
-        <Link
-          href="/"
-          className="flex items-center gap-3 rounded-xl py-1 pr-2 transition hover:opacity-90 active:opacity-95"
-        >
-          {logoUrl ? (
-            <img
-              src={logoUrl}
-              alt={nome}
-              className="h-11 w-11 shrink-0 rounded-xl object-cover shadow-md sm:h-12 sm:w-12"
-            />
-          ) : (
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[var(--accent)] to-[var(--accent-hover)] text-xl shadow-lg sm:h-12 sm:w-12">
-              🍔
-            </div>
+        <div className="flex items-center gap-3">
+          <Link
+            href="/"
+            className="flex items-center gap-3 rounded-xl py-1 pr-2 transition hover:opacity-90 active:opacity-95"
+          >
+            {logoUrl ? (
+              <img
+                src={logoUrl}
+                alt={nome}
+                className="h-11 w-11 shrink-0 rounded-xl object-cover shadow-md sm:h-12 sm:w-12"
+              />
+            ) : (
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[var(--accent)] to-[var(--accent-hover)] text-xl shadow-lg sm:h-12 sm:w-12">
+                🍔
+              </div>
+            )}
+            <span className="text-xl font-extrabold tracking-tight text-[var(--foreground)] sm:text-2xl">
+              {nome}
+            </span>
+          </Link>
+          {mostraStatus && (
+            <span
+              className={`rounded-full px-2.5 py-1 text-xs font-bold shadow-sm ${
+                aberto
+                  ? "bg-emerald-500/20 text-emerald-700 dark:text-emerald-300"
+                  : "bg-red-500/20 text-red-700 dark:text-red-300"
+              }`}
+            >
+              {aberto ? "Aberto" : "Fechado"}
+            </span>
           )}
-          <span className="text-xl font-extrabold tracking-tight text-[var(--foreground)] sm:text-2xl">
-            {nome}
-          </span>
-        </Link>
+        </div>
         <div className="flex items-center gap-2">
           <Link
             href="/finalizar-pedido"
@@ -48,15 +66,25 @@ export function Header({ nome, whatsapp, logoUrl }: HeaderProps) {
               </span>
             )}
           </Link>
-          <a
-            href={whatsappLink}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 rounded-xl bg-gradient-to-b from-[#25d366] to-[#20bd5a] px-4 py-2.5 text-sm font-bold text-white shadow-lg transition-all hover:shadow-xl hover:brightness-105 active:scale-[0.98]"
-          >
-            <WhatsAppIcon />
-            <span className="hidden sm:inline">Fazer pedido</span>
-          </a>
+          {aberto ? (
+            <a
+              href={whatsappLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 rounded-xl bg-gradient-to-b from-[#25d366] to-[#20bd5a] px-4 py-2.5 text-sm font-bold text-white shadow-lg transition-all hover:shadow-xl hover:brightness-105 active:scale-[0.98]"
+            >
+              <WhatsAppIcon />
+              <span className="hidden sm:inline">Fazer pedido</span>
+            </a>
+          ) : (
+            <span
+              className="flex cursor-not-allowed items-center gap-2 rounded-xl bg-gray-400/60 px-4 py-2.5 text-sm font-bold text-white/90 shadow"
+              title="Estamos fechados no momento"
+            >
+              <WhatsAppIcon />
+              <span className="hidden sm:inline">Fechado</span>
+            </span>
+          )}
         </div>
       </div>
     </header>

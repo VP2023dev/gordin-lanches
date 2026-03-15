@@ -36,6 +36,28 @@ export interface ConfigLoja {
   endereco?: string;
   horario?: string;
   logoUrl?: string | null;
+  /** "11:00" - para exibir "Aberto agora" */
+  horaAbertura?: string | null;
+  /** "23:00" - para exibir "Aberto agora" */
+  horaFechamento?: string | null;
+}
+
+/** Item de um combo (produto + quantidade) */
+export interface ComboItem {
+  produtoId: string;
+  produtoNome: string;
+  quantidade: number;
+}
+
+export interface Combo {
+  id: string;
+  nome: string;
+  descricao?: string;
+  preco: number;
+  imagem?: string | null;
+  ativo: boolean;
+  ordem: number;
+  itens: ComboItem[];
 }
 
 export interface Acrescimo {

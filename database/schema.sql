@@ -4,6 +4,7 @@
 -- ============================================
 
 -- Configuração da loja (único registro)
+-- hora_abertura / hora_fechamento: "11:00" e "23:00" para "Aberto agora"
 CREATE TABLE IF NOT EXISTS config_loja (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   nome VARCHAR(100) NOT NULL,
@@ -11,6 +12,8 @@ CREATE TABLE IF NOT EXISTS config_loja (
   endereco TEXT,
   horario TEXT,
   logo_url TEXT,
+  hora_abertura VARCHAR(5),
+  hora_fechamento VARCHAR(5),
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -69,6 +72,47 @@ CREATE INDEX IF NOT EXISTS idx_produtos_disponivel ON produtos(disponivel);
 CREATE INDEX IF NOT EXISTS idx_categorias_ordem ON categorias(ordem);
 CREATE INDEX IF NOT EXISTS idx_promocoes_ativa ON promocoes(ativa);
 CREATE INDEX IF NOT EXISTS idx_acrescimos_ativo ON acrescimos(ativo);
+
+-- Pedidos (histórico para o dono)
+CREATE TABLE IF NOT EXISTS pedidos (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  nome_cliente VARCHAR(150),
+  itens_json TEXT NOT NULL,
+  total DECIMAL(10,2) NOT NULL,
+  tipo_entrega VARCHAR(20) NOT NULL,
+  forma_pagamento VARCHAR(50),
+  endereco_json TEXT
+);
+CREATE INDEX IF NOT EXISTS idx_pedidos_created ON pedidos(created_at DESC);
+
+-- Combos (produtos do tipo combo)
+CREATE TABLE IF NOT EXISTS combos (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  nome VARCHAR(150) NOT NULL,
+  descricao TEXT,
+  preco DECIMAL(10,2) NOT NULL,
+  imagem_url TEXT,
+  ativo BOOLEAN DEFAULT TRUE,
+  ordem INTEGER NOT NULL DEFAULT 0,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+CREATE TABLE IF NOT EXISTS combo_itens (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  combo_id UUID NOT NULL REFERENCES combos(id) ON DELETE CASCADE,
+  produto_id UUID NOT NULL REFERENCES produtos(id) ON DELETE CASCADE,
+  quantidade INTEGER NOT NULL DEFAULT 1
+);
+CREATE INDEX IF NOT EXISTS idx_combo_itens_combo ON combo_itens(combo_id);
+
+-- Avaliações dos clientes
+CREATE TABLE IF NOT EXISTS avaliacoes (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  nota INTEGER NOT NULL CHECK (nota >= 1 AND nota <= 5),
+  comentario TEXT
+);
+CREATE INDEX IF NOT EXISTS idx_avaliacoes_created ON avaliacoes(created_at DESC);
 
 -- RLS (Row Level Security) para Supabase - desative se não usar
 -- ALTER TABLE config_loja ENABLE ROW LEVEL SECURITY;

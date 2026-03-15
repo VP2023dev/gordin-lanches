@@ -32,6 +32,8 @@ export async function POST(request: NextRequest) {
         endereco: dados.endereco || null,
         horario: dados.horario || null,
         logo_url: dados.logoUrl ?? null,
+        hora_abertura: dados.horaAbertura?.trim() || null,
+        hora_fechamento: dados.horaFechamento?.trim() || null,
         updated_at: new Date().toISOString(),
       };
       if (existing) {
@@ -119,6 +121,39 @@ export async function POST(request: NextRequest) {
           await supabase.from("promocoes").upsert({ ...row, id: p.id }, { onConflict: "id" });
         } else {
           await supabase.from("promocoes").insert(row);
+        }
+      }
+    } else if (tipo === "combos") {
+      const combosList = dados as { id?: string; nome: string; descricao?: string; preco: number; imagem?: string; ativo: boolean; ordem: number; itens: { produtoId: string; quantidade: number }[] }[];
+      const ids = combosList.map((c) => c.id).filter(Boolean);
+      const { data: existing } = await supabase.from("combos").select("id");
+      const toDelete = (existing || []).filter((e) => !ids.includes(e.id)).map((e) => e.id);
+      for (const id of toDelete) {
+        await supabase.from("combo_itens").delete().eq("combo_id", id);
+        await supabase.from("combos").delete().eq("id", id);
+      }
+      for (let i = 0; i < combosList.length; i++) {
+        const c = combosList[i];
+        const comboRow = {
+          nome: c.nome,
+          descricao: c.descricao || null,
+          preco: c.preco,
+          imagem_url: c.imagem ?? null,
+          ativo: c.ativo ?? true,
+          ordem: i,
+        };
+        let comboId = c.id;
+        if (comboId) {
+          await supabase.from("combos").upsert({ ...comboRow, id: comboId }, { onConflict: "id" });
+        } else {
+          const { data: inserted } = await supabase.from("combos").insert(comboRow).select("id").single();
+          comboId = inserted?.id;
+        }
+        if (comboId && c.itens?.length) {
+          await supabase.from("combo_itens").delete().eq("combo_id", comboId);
+          for (const it of c.itens) {
+            await supabase.from("combo_itens").insert({ combo_id: comboId, produto_id: it.produtoId, quantidade: it.quantidade || 1 });
+          }
         }
       }
     }
