@@ -1,8 +1,35 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Fundo: gradiente quente e acolhedor */
+  --background: #fff8f0;
+  --background-end: #ffefe0;
+  --foreground: #1a1208;
+  --foreground-soft: #3d2e1a;
+
+  /* Cards: branco quente com sombra marcada */
+  --card-bg: #ffffff;
+  --card-border: #f0e6dc;
+
+  /* Destaque principal: laranja vivo (apetitoso, chamativo) */
+  --accent: #e85d04;
+  --accent-hover: #d44d00;
+  --accent-soft: #fff4ed;
+  --accent-glow: rgba(232, 93, 4, 0.35);
+
+  /* Secundário: dourado para destaques */
+  --gold: #d97706;
+  --gold-soft: #fef3c7;
+
+  /* Texto e bordas */
+  --muted: #6b5b4f;
+  --border: #ecd9c8;
+  --border-strong: #e0c9b0;
+
+  /* Sombras mais presentes e quentes */
+  --shadow: 0 4px 20px rgba(26, 18, 8, 0.08), 0 2px 8px rgba(232, 93, 4, 0.06);
+  --shadow-hover: 0 12px 36px rgba(26, 18, 8, 0.12), 0 4px 16px rgba(232, 93, 4, 0.1);
+  --shadow-card: 0 2px 12px rgba(26, 18, 8, 0.06);
 }
 
 @theme inline {
@@ -12,15 +39,46 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  -webkit-tap-highlight-color: transparent;
 }
 
 body {
-  background: var(--background);
+  background: linear-gradient(180deg, var(--background) 0%, var(--background-end) 50%, var(--background) 100%);
+  background-attachment: fixed;
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), system-ui, sans-serif;
+  min-height: 100vh;
+}
+
+/* Scroll suave */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Esconder scrollbar mas manter scroll */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Botão de destaque com brilho sutil */
+.btn-accent {
+  background: linear-gradient(180deg, var(--accent) 0%, var(--accent-hover) 100%);
+  box-shadow: 0 4px 14px var(--accent-glow);
+}
+.btn-accent:hover {
+  box-shadow: 0 6px 20px var(--accent-glow);
+}
+
+/* Card com elevação suave */
+.card-lift {
+  box-shadow: var(--shadow-card);
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+.card-lift:hover {
+  box-shadow: var(--shadow);
 }

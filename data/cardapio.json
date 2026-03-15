@@ -1,0 +1,24 @@
+{
+  "config": {
+    "nome": "Gordin Lanches",
+    "whatsapp": "5511999999999",
+    "endereco": "Rua Exemplo, 123 - Centro",
+    "horario": "Seg a Dom: 11h às 23h"
+  },
+  "categorias": [
+    { "id": "cat1", "nome": "Lanches", "ordem": 1 },
+    { "id": "cat2", "nome": "Bebidas", "ordem": 2 },
+    { "id": "cat3", "nome": "Combos", "ordem": 3 }
+  ],
+  "produtos": [
+    { "id": "p1", "nome": "X-Burger", "descricao": "Hambúrguer, queijo, alface, tomate", "preco": 18.90, "categoriaId": "cat1", "disponivel": true, "ordem": 1 },
+    { "id": "p2", "nome": "X-Bacon", "descricao": "Hambúrguer, bacon, queijo, alface, tomate", "preco": 22.90, "categoriaId": "cat1", "disponivel": true, "ordem": 2 },
+    { "id": "p3", "nome": "X-Tudo", "descricao": "Hambúrguer, bacon, ovos, queijo, presunto, alface, tomate", "preco": 28.90, "categoriaId": "cat1", "disponivel": true, "ordem": 3 },
+    { "id": "p4", "nome": "Refrigerante Lata", "descricao": "350ml - Coca, Guaraná ou Fanta", "preco": 4.50, "categoriaId": "cat2", "disponivel": true, "ordem": 1 },
+    { "id": "p5", "nome": "Suco Natural", "descricao": "500ml - Laranja, Limão ou Maracujá", "preco": 8.00, "categoriaId": "cat2", "disponivel": true, "ordem": 2 },
+    { "id": "p6", "nome": "Combo X-Burger + Refri", "descricao": "X-Burger + Refrigerante Lata", "preco": 22.00, "categoriaId": "cat3", "disponivel": true, "ordem": 1 }
+  ],
+  "promocoes": [
+    { "id": "promo1", "titulo": "Promo do Dia!", "descricao": "X-Burger + Batata + Refri por R$ 25,00", "precoPromocional": 25, "ativa": true, "ordem": 1, "createdAt": "2024-01-01" }
+  ]
+}

@@ -1,36 +1,56 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Gordin Lanches - Cardápio Online
 
-## Getting Started
+Cardápio digital estilo Anota.ai: produtos com foto, promoções do dia, carrinho + WhatsApp e painel administrativo.
 
-First, run the development server:
+## Funcionalidades
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- **Cardápio público** – Produtos em cards com fotos, busca e filtros por categoria
+- **Promoções do dia** – Seção destacada no topo
+- **Carrinho + WhatsApp** – Monte o pedido e envie direto pro WhatsApp
+- **Painel do dono** – Edite produtos, categorias, promoções, fotos e configurações
+- **Banco de dados** – PostgreSQL via Supabase
+- **Upload de fotos** – Supabase Storage para imagens dos produtos
+- **100% responsivo** – Mobile-first
+
+## Configuração
+
+### 1. Criar projeto no Supabase
+
+1. Acesse [supabase.com](https://supabase.com) e crie um projeto
+2. No **SQL Editor**, execute o conteúdo de `database/schema.sql`
+3. Em **Storage**, crie um bucket público chamado `cardapio`
+4. Em **Settings > API**, copie a URL e as chaves
+
+### 2. Variáveis de ambiente
+
+Copie `.env.example` para `.env` e preencha:
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=https://xxxxx.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...
+SUPABASE_SERVICE_ROLE_KEY=eyJ...
+ADMIN_PASSWORD=sua_senha_admin
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 3. Rodar o projeto
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm install
+npm run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **Cardápio:** http://localhost:3000
+- **Painel admin:** http://localhost:3000/admin
 
-## Learn More
+## Estrutura do banco
 
-To learn more about Next.js, take a look at the following resources:
+Execute `database/schema.sql` no Supabase para criar as tabelas:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- `config_loja` – Nome, WhatsApp, endereço, horário
+- `categorias` – Categorias do cardápio
+- `produtos` – Itens com nome, descrição, preço, foto (URL)
+- `promocoes` – Promoções do dia
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## WhatsApp
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+No painel, em **Configurações**, informe o número no formato: `5511999999999` (país + DDD + número).
