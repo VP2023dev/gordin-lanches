@@ -671,7 +671,7 @@ function AdminPromocoes({
 }
 
 function AdminPedidos() {
-  const [pedidos, setPedidos] = useState<{ id: string; createdAt: string; nomeCliente: string | null; itens: string; total: number; tipoEntrega: string; formaPagamento: string | null; endereco: string | null }[]>([]);
+  const [pedidos, setPedidos] = useState<{ id: string; numero?: number | null; createdAt: string; nomeCliente: string | null; itens: string; total: number; tipoEntrega: string; formaPagamento: string | null; endereco: string | null }[]>([]);
   const [loading, setLoading] = useState(true);
   const [hoje, setHoje] = useState(true);
 
@@ -723,6 +723,7 @@ function AdminPedidos() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-slate-200 bg-slate-50 text-left">
+                <th className="p-3 font-semibold text-slate-700">Nº</th>
                 <th className="p-3 font-semibold text-slate-700">Data/Hora</th>
                 <th className="p-3 font-semibold text-slate-700">Cliente</th>
                 <th className="p-3 font-semibold text-slate-700">Itens</th>
@@ -737,8 +738,10 @@ function AdminPedidos() {
                   itensParsed = typeof p.itens === "string" ? JSON.parse(p.itens) : p.itens;
                 } catch {}
                 const resumo = itensParsed.map((i) => `${i.quantidade}x ${i.nome}`).join("; ") || "—";
+                const numeroStr = p.numero != null ? `#${String(p.numero).padStart(3, "0")}` : "—";
                 return (
                   <tr key={p.id} className="border-b border-slate-100 hover:bg-slate-50/50 transition">
+                    <td className="p-3 font-semibold text-orange-600">{numeroStr}</td>
                     <td className="p-3 text-slate-700">{formatDate(p.createdAt)}</td>
                     <td className="p-3 font-medium text-slate-800">{p.nomeCliente || "—"}</td>
                     <td className="max-w-[200px] truncate p-3 text-slate-600" title={resumo}>{resumo}</td>

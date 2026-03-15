@@ -25,6 +25,7 @@ export default function FinalizarPedidoPage() {
     complemento: "",
   });
   const [enviado, setEnviado] = useState(false);
+  const [numeroPedido, setNumeroPedido] = useState<number | null>(null);
 
   useEffect(() => {
     fetch("/api/cardapio")
@@ -69,8 +70,29 @@ export default function FinalizarPedidoPage() {
       return `${i.quantidade}x ${nome}${extrasTexto}${obsTexto} - R$ ${valorLinha.toFixed(2)}`;
     });
 
+    let numero: number | null = null;
+    try {
+      const res = await fetch("/api/pedidos", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          nomeCliente: nomeCliente.trim() || null,
+          itens: resumoItens,
+          total: totalGeral,
+          tipoEntrega,
+          formaPagamento,
+          endereco: tipoEntrega === "entrega" ? endereco : null,
+        }),
+      });
+      const data = await res.json();
+      if (data?.numero != null) numero = Number(data.numero);
+    } catch {
+      // segue mesmo se falhar o registro (pedido vai no WhatsApp)
+    }
+
     const linhas = [
       `*Pedido - ${config.nome}*`,
+      ...(numero != null ? ["", `*Nº do pedido: #${String(numero).padStart(3, "0")}*`] : []),
       "",
       ...(nomeCliente.trim() ? [`*Cliente:* ${nomeCliente.trim()}`, ""] : []),
       "*Itens:*",
@@ -96,27 +118,11 @@ export default function FinalizarPedidoPage() {
     linhas.push("");
     linhas.push(`*Total: R$ ${totalGeral.toFixed(2)}*`);
 
-    try {
-      await fetch("/api/pedidos", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          nomeCliente: nomeCliente.trim() || null,
-          itens: resumoItens,
-          total: totalGeral,
-          tipoEntrega,
-          formaPagamento,
-          endereco: tipoEntrega === "entrega" ? endereco : null,
-        }),
-      });
-    } catch {
-      // segue mesmo se falhar o registro (pedido vai no WhatsApp)
-    }
-
     const msg = encodeURIComponent(linhas.join("\n"));
     const url = `https://wa.me/${config.whatsapp.replace(/\D/g, "")}?text=${msg}`;
     window.open(url, "_blank");
     clearCart();
+    setNumeroPedido(numero);
     setEnviado(true);
   };
 
@@ -136,6 +142,11 @@ export default function FinalizarPedidoPage() {
           <h1 className="text-2xl font-extrabold text-[var(--foreground)]">
             Pedido enviado!
           </h1>
+          {numeroPedido != null && (
+            <p className="mt-3 text-lg font-bold text-[var(--accent)]">
+              Seu pedido é o #{String(numeroPedido).padStart(3, "0")}
+            </p>
+          )}
           <p className="mt-2 text-[var(--muted)]">
             Seu pedido foi enviado para o WhatsApp. Aguarde a confirmação.
           </p>

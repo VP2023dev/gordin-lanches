@@ -13,19 +13,41 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { nomeCliente, itens, total, tipoEntrega, formaPagamento, endereco } = body;
     const supabase = createClient(supabaseUrl, supabaseKey);
-    const { error } = await supabase.from("pedidos").insert({
+
+    const payload = {
       nome_cliente: nomeCliente?.trim() || null,
       itens_json: JSON.stringify(itens ?? []),
       total: Number(total) || 0,
       tipo_entrega: tipoEntrega === "entrega" ? "entrega" : "retirada",
       forma_pagamento: formaPagamento || null,
       endereco_json: endereco ? JSON.stringify(endereco) : null,
-    });
+    };
+
+    let numero: number | null = null;
+    const { data: maxRow } = await supabase.from("pedidos").select("numero").order("numero", { ascending: false }).limit(1).maybeSingle();
+    const proximoNumero = (Number((maxRow as { numero?: number } | null)?.numero) || 0) + 1;
+
+    const { data: inserted, error } = await supabase
+      .from("pedidos")
+      .insert({ ...payload, numero: proximoNumero })
+      .select("numero")
+      .single();
+
     if (error) {
+      const colunaNumeroInexistente = /numero|column/i.test(error.message);
+      if (colunaNumeroInexistente) {
+        const { error: err2 } = await supabase.from("pedidos").insert(payload);
+        if (err2) {
+          console.error("Erro ao salvar pedido:", err2);
+          return NextResponse.json({ error: err2.message }, { status: 500 });
+        }
+        return NextResponse.json({ ok: true });
+      }
       console.error("Erro ao salvar pedido:", error);
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
-    return NextResponse.json({ ok: true });
+    numero = (inserted as { numero: number } | null)?.numero ?? proximoNumero;
+    return NextResponse.json({ ok: true, numero });
   } catch (e) {
     console.error(e);
     return NextResponse.json({ error: "Erro ao registrar pedido" }, { status: 500 });
@@ -56,6 +78,7 @@ export async function GET(request: NextRequest) {
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
     const pedidos = (data || []).map((p: Record<string, unknown>) => ({
       id: p.id,
+      numero: p.numero,
       createdAt: p.created_at,
       nomeCliente: p.nome_cliente,
       itens: p.itens_json,
