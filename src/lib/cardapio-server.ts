@@ -103,7 +103,8 @@ export async function getCardapioFromDb(full = false): Promise<CardapioData> {
         : await supabase.from("combos").select("*").eq("ativo", true).order("ordem");
       const combosData = combosRes.data || [];
       const itensRes = await supabase.from("combo_itens").select("combo_id, produto_id, quantidade, produtos(nome)");
-      const itensData = (itensRes.data || []) as { combo_id: string; produto_id: string; quantidade: number; produtos: { nome: string } | null }[];
+      type ComboItemRow = { combo_id: string; produto_id: string; quantidade: number; produtos: { nome: string } | null };
+      const itensData = (itensRes.data || []) as unknown as ComboItemRow[];
       const produtosMap = new Map((produtosRes.data || []).map((p: Record<string, string>) => [p.id, p.nome]));
       combos = combosData.map((c: Record<string, unknown>) => ({
         id: c.id as string,

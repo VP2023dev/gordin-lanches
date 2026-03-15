@@ -92,6 +92,8 @@ export async function GET(request: Request) {
       const itensRes = await supabase.from("combo_itens").select("combo_id, produto_id, quantidade, produtos(nome)");
       const itensData = itensRes.data || [];
       const produtosMap = new Map((produtosRes.data || []).map((p: { id: string; nome: string }) => [p.id, p.nome]));
+      type ComboItemRow = { combo_id: string; produto_id: string; quantidade: number; produtos: { nome: string } | null };
+      const itensTyped = itensData as unknown as ComboItemRow[];
       combos = combosData.map((c: { id: string; nome: string; descricao?: string; preco: string; imagem_url?: string; ativo?: boolean; ordem: number }) => ({
         id: c.id,
         nome: c.nome,
@@ -100,7 +102,7 @@ export async function GET(request: Request) {
         imagem: c.imagem_url || undefined,
         ativo: c.ativo !== false,
         ordem: c.ordem,
-        itens: (itensData as { combo_id: string; produto_id: string; quantidade: number; produtos: { nome: string } | null }[])
+        itens: itensTyped
           .filter((i) => i.combo_id === c.id)
           .map((i) => ({
             produtoId: i.produto_id,
