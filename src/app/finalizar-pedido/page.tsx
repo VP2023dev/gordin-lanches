@@ -13,8 +13,9 @@ const FORMAS_PAGAMENTO = [
 ] as const;
 
 export default function FinalizarPedidoPage() {
-  const { itens, removeItem, updateQuantity, totalPreco, clearCart } = useCart();
+  const { itens, removeItem, updateQuantity, updateObservation, totalPreco, clearCart } = useCart();
   const [config, setConfig] = useState<{ nome: string; whatsapp: string } | null>(null);
+  const [nomeCliente, setNomeCliente] = useState("");
   const [tipoEntrega, setTipoEntrega] = useState<"entrega" | "retirada">("retirada");
   const [formaPagamento, setFormaPagamento] = useState<string>("dinheiro");
   const [endereco, setEndereco] = useState({
@@ -51,12 +52,14 @@ export default function FinalizarPedidoPage() {
         i.acrescimos.length > 0
           ? ` (${i.acrescimos.map((a) => `${a.quantidade}x ${a.nome}`).join(", ")})`
           : "";
-      return `${i.quantidade}x ${i.produto.nome}${extrasTexto} - R$ ${valorLinha.toFixed(2)}`;
+      const obsTexto = i.observacao?.trim() ? ` | Obs: ${i.observacao.trim()}` : "";
+      return `${i.quantidade}x ${i.produto.nome}${extrasTexto}${obsTexto} - R$ ${valorLinha.toFixed(2)}`;
     });
 
     const linhas = [
       `*Pedido - ${config.nome}*`,
       "",
+      ...(nomeCliente.trim() ? [`*Cliente:* ${nomeCliente.trim()}`, ""] : []),
       "*Itens:*",
       ...linhasItens,
       "",
@@ -145,59 +148,87 @@ export default function FinalizarPedidoPage() {
         Finalizar pedido
       </h1>
 
+      {/* Nome do cliente */}
+      <section className="card-lift mb-8 rounded-2xl border-2 border-[var(--card-border)] bg-[var(--card-bg)] p-5 shadow-[var(--shadow)]">
+        <h2 className="mb-4 text-lg font-bold text-[var(--foreground)]">
+          Quem é o pedido?
+        </h2>
+        <p className="mb-3 text-sm text-[var(--muted)]">
+          Informe seu nome para o estabelecimento identificar seu pedido.
+        </p>
+        <input
+          type="text"
+          placeholder="Seu nome"
+          value={nomeCliente}
+          onChange={(e) => setNomeCliente(e.target.value)}
+          className="w-full rounded-xl border-2 border-[var(--border)] bg-[var(--card-bg)] px-4 py-3 text-[var(--foreground)] placeholder-[var(--muted)] transition focus:border-[var(--accent)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-glow)]"
+        />
+      </section>
+
       {/* Itens do carrinho */}
       <section className="card-lift mb-8 rounded-2xl border-2 border-[var(--card-border)] bg-[var(--card-bg)] p-5 shadow-[var(--shadow)]">
         <h2 className="mb-4 text-lg font-bold text-[var(--foreground)]">
           Seu pedido
         </h2>
-        <ul className="space-y-3">
+        <ul className="space-y-4">
           {itens.map((item, index) => {
             const valorLinha = totalItemLinha(item);
             return (
               <li
                 key={`${item.produto.id}-${index}`}
-                className="flex items-center justify-between gap-4 border-b border-[var(--border)] pb-3 last:border-0 last:pb-0"
+                className="border-b border-[var(--border)] pb-4 last:border-0 last:pb-0"
               >
-                <div className="min-w-0 flex-1">
-                  <p className="font-medium text-[var(--foreground)]">
-                    {item.produto.nome}
-                  </p>
-                  {item.acrescimos.length > 0 && (
-                    <p className="text-sm text-[var(--muted)]">
-                      + {item.acrescimos.map((a) => `${a.quantidade}x ${a.nome} (+${formatPrice(a.preco)})`).join(", ")}
+                <div className="flex items-start justify-between gap-4">
+                  <div className="min-w-0 flex-1">
+                    <p className="font-medium text-[var(--foreground)]">
+                      {item.produto.nome}
                     </p>
-                  )}
-                  <p className="text-sm text-[var(--muted)]">
-                    {item.quantidade}x = {formatPrice(valorLinha)}
-                  </p>
+                    {item.acrescimos.length > 0 && (
+                      <p className="text-sm text-[var(--muted)]">
+                        + {item.acrescimos.map((a) => `${a.quantidade}x ${a.nome} (+${formatPrice(a.preco)})`).join(", ")}
+                      </p>
+                    )}
+                    <p className="text-sm text-[var(--muted)]">
+                      {item.quantidade}x = {formatPrice(valorLinha)}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        updateQuantity(index, Math.max(0, item.quantidade - 1))
+                      }
+                      className="flex h-8 w-8 items-center justify-center rounded-lg border border-[var(--border)] text-lg leading-none hover:bg-[var(--background)]"
+                    >
+                      −
+                    </button>
+                    <span className="w-8 text-center font-medium">
+                      {item.quantidade}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => updateQuantity(index, item.quantidade + 1)}
+                      className="flex h-8 w-8 items-center justify-center rounded-lg border border-[var(--border)] text-lg leading-none hover:bg-[var(--background)]"
+                    >
+                      +
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => removeItem(index)}
+                      className="ml-1 text-sm text-red-600 hover:underline"
+                    >
+                      Remover
+                    </button>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() =>
-                      updateQuantity(index, Math.max(0, item.quantidade - 1))
-                    }
-                    className="flex h-8 w-8 items-center justify-center rounded-lg border border-[var(--border)] text-lg leading-none hover:bg-[var(--background)]"
-                  >
-                    −
-                  </button>
-                  <span className="w-8 text-center font-medium">
-                    {item.quantidade}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => updateQuantity(index, item.quantidade + 1)}
-                    className="flex h-8 w-8 items-center justify-center rounded-lg border border-[var(--border)] text-lg leading-none hover:bg-[var(--background)]"
-                  >
-                    +
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => removeItem(index)}
-                    className="ml-1 text-sm text-red-600 hover:underline"
-                  >
-                    Remover
-                  </button>
+                <div className="mt-2">
+                  <input
+                    type="text"
+                    placeholder="Alterações? (ex: sem cebola, sem tomate)"
+                    value={item.observacao ?? ""}
+                    onChange={(e) => updateObservation(index, e.target.value)}
+                    className="w-full rounded-lg border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)] placeholder-[var(--muted)]"
+                  />
                 </div>
               </li>
             );

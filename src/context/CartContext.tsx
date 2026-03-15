@@ -14,6 +14,8 @@ export interface ItemCarrinho {
   produto: Produto;
   quantidade: number;
   acrescimos: AcrescimoSelecionado[];
+  /** Observação do cliente (ex: "sem cebola", "sem tomate") */
+  observacao?: string;
 }
 
 export function totalItemLinha(item: ItemCarrinho): number {
@@ -45,6 +47,7 @@ interface CartContextValue {
   ) => void;
   removeItem: (index: number) => void;
   updateQuantity: (index: number, quantidade: number) => void;
+  updateObservation: (index: number, observacao: string) => void;
   clearCart: () => void;
   totalItens: number;
   totalPreco: number;
@@ -75,7 +78,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         }
         return [
           ...prev,
-          { produto, quantidade, acrescimos: normalizados },
+          { produto, quantidade, acrescimos: normalizados, observacao: undefined },
         ];
       });
     },
@@ -93,6 +96,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }
     setItens((prev) =>
       prev.map((it, i) => (i === index ? { ...it, quantidade } : it))
+    );
+  }, []);
+
+  const updateObservation = useCallback((index: number, observacao: string) => {
+    setItens((prev) =>
+      prev.map((it, i) => (i === index ? { ...it, observacao: observacao.trim() || undefined } : it))
     );
   }, []);
 
@@ -114,11 +123,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       addItem,
       removeItem,
       updateQuantity,
+      updateObservation,
       clearCart,
       totalItens,
       totalPreco,
     }),
-    [itens, addItem, removeItem, updateQuantity, clearCart, totalItens, totalPreco]
+    [itens, addItem, removeItem, updateQuantity, updateObservation, clearCart, totalItens, totalPreco]
   );
 
   return (
