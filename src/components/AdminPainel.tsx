@@ -466,10 +466,9 @@ function AdminProdutos({
     }
   };
 
-  const adicionar = () => {
+  const adicionar = (categoriaId: string) => {
     const id = crypto.randomUUID();
-    const primeiraCat = categorias[0]?.id;
-    if (!primeiraCat) return alert("Crie uma categoria primeiro!");
+    const maxOrdem = Math.max(0, ...lista.filter((p) => p.categoriaId === categoriaId).map((p) => p.ordem));
     setLista([
       ...lista,
       {
@@ -479,9 +478,9 @@ function AdminProdutos({
         ingredientes: "",
         preco: 0,
         imagem: null,
-        categoriaId: primeiraCat,
+        categoriaId,
         disponivel: true,
-        ordem: lista.length + 1,
+        ordem: maxOrdem + 1,
       },
     ]);
   };
@@ -496,61 +495,105 @@ function AdminProdutos({
     );
   };
 
+  const categoriasOrdenadas = [...categorias].sort((a, b) => a.ordem - b.ordem);
+  const produtosPorCategoria = categoriasOrdenadas.map((cat) => ({
+    categoria: cat,
+    produtos: lista.filter((p) => p.categoriaId === cat.id).sort((a, b) => a.ordem - b.ordem),
+  }));
+  const produtosSemCategoria = lista.filter((p) => !categorias.some((c) => c.id === p.categoriaId));
+
   const inputClass = "rounded-xl border border-slate-200 bg-white px-3 py-2 text-slate-800 shadow-sm focus:border-orange-400 focus:outline-none focus:ring-2 focus:ring-orange-400/30";
-  return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xl shadow-slate-200/50">
-      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 pb-4 mb-6">
-        <h2 className="text-lg font-bold text-slate-800">Produtos</h2>
-        <button onClick={adicionar} className="rounded-xl bg-emerald-500 px-4 py-2.5 text-sm font-semibold text-white shadow-md transition hover:bg-emerald-600">
-          + Novo produto
+
+  const renderProduto = (p: Produto) => (
+    <div key={p.id} className="rounded-xl border border-slate-200 bg-slate-50/50 p-4 space-y-3">
+      <div className="flex flex-wrap gap-3">
+        <input value={p.nome} onChange={(e) => atualizar(p.id, "nome", e.target.value)} placeholder="Nome" className={`flex-1 min-w-[160px] ${inputClass}`} />
+        <input type="number" step="0.01" value={p.preco} onChange={(e) => atualizar(p.id, "preco", parseFloat(e.target.value) || 0)} placeholder="Preço" className={`w-24 ${inputClass}`} />
+        <select value={p.categoriaId} onChange={(e) => atualizar(p.id, "categoriaId", e.target.value)} className={inputClass}>
+          {categorias.map((c) => (
+            <option key={c.id} value={c.id}>{c.nome}</option>
+          ))}
+        </select>
+        <label className="flex items-center gap-2 cursor-pointer">
+          <input type="checkbox" checked={p.disponivel} onChange={(e) => atualizar(p.id, "disponivel", e.target.checked)} className="h-4 w-4 rounded border-slate-300 text-orange-500 focus:ring-orange-400" />
+          <span className="text-sm font-medium text-slate-600">Disponível</span>
+        </label>
+        <label className="flex items-center gap-2 cursor-pointer">
+          <input type="checkbox" checked={p.destaque ?? false} onChange={(e) => atualizar(p.id, "destaque", e.target.checked)} className="h-4 w-4 rounded border-slate-300 text-orange-500 focus:ring-orange-400" />
+          <span className="text-sm font-medium text-slate-600">Destaque</span>
+        </label>
+        <button onClick={() => remover(p.id)} className="rounded-xl bg-red-50 px-3 py-2 text-sm font-medium text-red-600 transition hover:bg-red-100">
+          Excluir
         </button>
       </div>
-      <div className="space-y-4">
-        {lista.map((p) => (
-          <div key={p.id} className="rounded-xl border border-slate-200 bg-slate-50/50 p-4 space-y-3">
-            <div className="flex flex-wrap gap-3">
-              <input value={p.nome} onChange={(e) => atualizar(p.id, "nome", e.target.value)} placeholder="Nome" className={`flex-1 min-w-[160px] ${inputClass}`} />
-              <input type="number" step="0.01" value={p.preco} onChange={(e) => atualizar(p.id, "preco", parseFloat(e.target.value) || 0)} placeholder="Preço" className={`w-24 ${inputClass}`} />
-              <select value={p.categoriaId} onChange={(e) => atualizar(p.id, "categoriaId", e.target.value)} className={inputClass}>
-                {categorias.map((c) => (
-                  <option key={c.id} value={c.id}>{c.nome}</option>
-                ))}
-              </select>
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" checked={p.disponivel} onChange={(e) => atualizar(p.id, "disponivel", e.target.checked)} className="h-4 w-4 rounded border-slate-300 text-orange-500 focus:ring-orange-400" />
-                <span className="text-sm font-medium text-slate-600">Disponível</span>
-              </label>
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" checked={p.destaque ?? false} onChange={(e) => atualizar(p.id, "destaque", e.target.checked)} className="h-4 w-4 rounded border-slate-300 text-orange-500 focus:ring-orange-400" />
-                <span className="text-sm font-medium text-slate-600">Destaque</span>
-              </label>
-              <button onClick={() => remover(p.id)} className="rounded-xl bg-red-50 px-3 py-2 text-sm font-medium text-red-600 transition hover:bg-red-100">
-                Excluir
+      <input value={p.descricao} onChange={(e) => atualizar(p.id, "descricao", e.target.value)} placeholder="Descrição curta" className={`w-full ${inputClass}`} />
+      <div>
+        <label className="block text-xs font-medium text-slate-500 mb-1">Ingredientes (um por linha ou separados por vírgula)</label>
+        <textarea value={p.ingredientes ?? ""} onChange={(e) => atualizar(p.id, "ingredientes", e.target.value)} placeholder="Ex: Pão, hambúrguer, queijo, alface, tomate" className={`w-full ${inputClass}`} rows={2} />
+      </div>
+      <div className="flex items-center gap-3 flex-wrap">
+        {p.imagem ? (
+          <img src={p.imagem} alt={p.nome} className="h-20 w-20 rounded-xl object-cover border border-slate-200 shadow-sm" />
+        ) : (
+          <div className="flex h-20 w-20 items-center justify-center rounded-xl bg-slate-100 border border-slate-200 text-xs text-slate-500">Sem foto</div>
+        )}
+        <label className="cursor-pointer rounded-xl bg-slate-100 px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-200">
+          {uploading === p.id ? "Enviando..." : "Enviar foto"}
+          <input type="file" accept="image/*" className="hidden" disabled={!!uploading} onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadFoto(p.id, f); }} />
+        </label>
+        {p.imagem && (
+          <button type="button" onClick={() => atualizar(p.id, "imagem", null)} className="text-sm font-medium text-red-600 hover:underline">
+            Remover foto
+          </button>
+        )}
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xl shadow-slate-200/50">
+      <div className="border-b border-slate-100 pb-4 mb-6">
+        <h2 className="text-lg font-bold text-slate-800">Produtos</h2>
+        <p className="mt-1 text-sm text-slate-500">Organizados por categoria. Use o select em cada produto para mudar de categoria.</p>
+      </div>
+      <div className="space-y-8">
+        {categoriasOrdenadas.length === 0 && (
+          <div className="rounded-xl border border-amber-200 bg-amber-50/50 p-6 text-center">
+            <p className="text-amber-800 font-medium">Crie uma categoria na aba <strong>Categorias</strong> para organizar e adicionar produtos.</p>
+          </div>
+        )}
+        {produtosPorCategoria.map(({ categoria, produtos }) => (
+          <section key={categoria.id} className="rounded-xl border border-slate-200 bg-slate-50/30 p-4">
+            <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+              <h3 className="text-base font-bold text-slate-800">
+                {categoria.nome}
+                <span className="ml-2 text-sm font-normal text-slate-500">({produtos.length} {produtos.length === 1 ? "item" : "itens"})</span>
+              </h3>
+              <button
+                type="button"
+                onClick={() => adicionar(categoria.id)}
+                className="rounded-xl bg-emerald-500 px-3 py-2 text-sm font-semibold text-white shadow-md transition hover:bg-emerald-600"
+              >
+                + Novo nesta categoria
               </button>
             </div>
-            <input value={p.descricao} onChange={(e) => atualizar(p.id, "descricao", e.target.value)} placeholder="Descrição curta" className={`w-full ${inputClass}`} />
-            <div>
-              <label className="block text-xs font-medium text-slate-500 mb-1">Ingredientes (um por linha ou separados por vírgula)</label>
-              <textarea value={p.ingredientes ?? ""} onChange={(e) => atualizar(p.id, "ingredientes", e.target.value)} placeholder="Ex: Pão, hambúrguer, queijo, alface, tomate" className={`w-full ${inputClass}`} rows={2} />
-            </div>
-            <div className="flex items-center gap-3 flex-wrap">
-              {p.imagem ? (
-                <img src={p.imagem} alt={p.nome} className="h-20 w-20 rounded-xl object-cover border border-slate-200 shadow-sm" />
+            <div className="space-y-3">
+              {produtos.length === 0 ? (
+                <p className="py-4 text-center text-sm text-slate-500">Nenhum produto. Clique em &quot;+ Novo nesta categoria&quot; para adicionar.</p>
               ) : (
-                <div className="flex h-20 w-20 items-center justify-center rounded-xl bg-slate-100 border border-slate-200 text-xs text-slate-500">Sem foto</div>
-              )}
-              <label className="cursor-pointer rounded-xl bg-slate-100 px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-200">
-                {uploading === p.id ? "Enviando..." : "Enviar foto"}
-                <input type="file" accept="image/*" className="hidden" disabled={!!uploading} onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadFoto(p.id, f); }} />
-              </label>
-              {p.imagem && (
-                <button type="button" onClick={() => atualizar(p.id, "imagem", null)} className="text-sm font-medium text-red-600 hover:underline">
-                  Remover foto
-                </button>
+                produtos.map((p) => renderProduto(p))
               )}
             </div>
-          </div>
+          </section>
         ))}
+        {produtosSemCategoria.length > 0 && (
+          <section className="rounded-xl border border-amber-200 bg-amber-50/50 p-4">
+            <h3 className="text-base font-bold text-amber-900 mb-4">Sem categoria ({produtosSemCategoria.length})</h3>
+            <div className="space-y-3">
+              {produtosSemCategoria.map((p) => renderProduto(p))}
+            </div>
+          </section>
+        )}
       </div>
       <button onClick={() => onSalvar(lista)} className="mt-6 w-full rounded-xl bg-orange-500 px-4 py-3 font-semibold text-white shadow-lg transition hover:bg-orange-600">
         Salvar produtos
