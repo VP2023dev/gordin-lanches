@@ -1,4 +1,5 @@
 import type { ConfigLoja, Categoria, Produto, Promocao, Acrescimo } from "@/types";
+import { getCardapioFromDb } from "./cardapio-server";
 
 export interface CardapioData {
   config: ConfigLoja;
@@ -8,13 +9,9 @@ export interface CardapioData {
   acrescimos?: Acrescimo[];
 }
 
+/** Usado na página inicial (servidor): busca direto do Supabase, sem depender da API. */
 export async function getCardapio(): Promise<CardapioData> {
-  const base =
-    typeof window !== "undefined" ? "" : process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
-  const url = base ? `${base}/api/cardapio` : "/api/cardapio";
-  const res = await fetch(url, { cache: "no-store" });
-  if (!res.ok) throw new Error("Erro ao carregar cardápio");
-  return res.json();
+  return getCardapioFromDb(false);
 }
 
 export function formatPrice(value: number): string {
