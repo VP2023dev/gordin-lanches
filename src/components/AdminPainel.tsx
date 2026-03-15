@@ -97,76 +97,89 @@ export function AdminPainel({ onSair }: AdminPainelProps) {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-amber-50">
-        <p>Carregando...</p>
+      <div className="flex min-h-screen items-center justify-center bg-slate-100">
+        <div className="flex flex-col items-center gap-4">
+          <div className="h-10 w-10 animate-spin rounded-full border-2 border-orange-500 border-t-transparent" />
+          <p className="text-slate-600 font-medium">Carregando painel...</p>
+        </div>
       </div>
     );
   }
 
   if (erro || !data) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-amber-50 px-4">
-        <p className="text-center text-red-600">{erro || "Sem dados"}</p>
-        <p className="text-center text-sm text-gray-600">
-          Configure NEXT_PUBLIC_SUPABASE_URL e SUPABASE_SERVICE_ROLE_KEY no .env
-        </p>
-        <button
-          onClick={carregar}
-          className="rounded-lg bg-amber-600 px-4 py-2 text-white"
-        >
-          Tentar novamente
-        </button>
+      <div className="flex min-h-screen flex-col items-center justify-center gap-6 bg-slate-100 px-4">
+        <div className="rounded-2xl bg-white p-8 shadow-xl border border-slate-200 max-w-md w-full text-center">
+          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-red-100 text-2xl">⚠️</div>
+          <p className="text-red-600 font-semibold">{erro || "Sem dados"}</p>
+          <p className="mt-2 text-sm text-slate-500">
+            Configure NEXT_PUBLIC_SUPABASE_URL e SUPABASE_SERVICE_ROLE_KEY no .env
+          </p>
+          <button
+            onClick={carregar}
+            className="mt-6 w-full rounded-xl bg-orange-500 px-4 py-3 font-semibold text-white shadow-lg transition hover:bg-orange-600"
+          >
+            Tentar novamente
+          </button>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-amber-50 pb-8">
-      <header className="sticky top-0 z-50 border-b border-amber-200 bg-white px-4 py-3">
-        <div className="mx-auto flex max-w-4xl items-center justify-between">
-          <h1 className="text-lg font-bold text-amber-900">Painel do Dono</h1>
+    <div className="min-h-screen bg-slate-100 pb-12">
+      <header className="sticky top-0 z-50 bg-slate-800 shadow-lg">
+        <div className="mx-auto flex max-w-4xl flex-col gap-4 px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-500 text-white text-lg shadow-md">⚙️</div>
+            <h1 className="text-xl font-bold text-white">Painel do Dono</h1>
+          </div>
           <div className="flex gap-2">
             <a
               href="/"
               target="_blank"
               rel="noopener noreferrer"
-              className="rounded-lg border border-amber-300 px-3 py-2 text-sm text-amber-800"
+              className="rounded-xl border border-slate-500 bg-slate-700/50 px-4 py-2.5 text-sm font-medium text-slate-200 transition hover:bg-slate-600 hover:text-white"
             >
               Ver cardápio
             </a>
             <button
               onClick={onSair}
-              className="rounded-lg bg-gray-200 px-3 py-2 text-sm text-gray-700 hover:bg-gray-300"
+              className="rounded-xl bg-slate-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-slate-500"
             >
               Sair
             </button>
           </div>
         </div>
-        <nav className="mt-3 flex gap-2 overflow-x-auto pb-1">
-          {(["config", "categorias", "produtos", "acrescimos", "promocoes", "pedidos", "combos", "avaliacoes"] as const).map(
-            (a) => (
-              <button
-                key={a}
-                onClick={() => setAba(a)}
-                className={`whitespace-nowrap rounded-lg px-3 py-2 text-sm ${
-                  aba === a ? "bg-amber-600 text-white" : "bg-amber-100 text-amber-800"
-                }`}
-              >
-                {a === "config" && "Configurações"}
-                {a === "categorias" && "Categorias"}
-                {a === "produtos" && "Produtos"}
-                {a === "acrescimos" && "Acréscimos"}
-                {a === "promocoes" && "Promoções"}
-                {a === "pedidos" && "Pedidos"}
-                {a === "combos" && "Combos"}
-                {a === "avaliacoes" && "Avaliações"}
-              </button>
-            )
-          )}
+        <nav className="mx-auto max-w-4xl overflow-x-auto px-4 pb-3 scrollbar-hide">
+          <div className="flex gap-2 min-w-0">
+            {(["config", "categorias", "produtos", "acrescimos", "promocoes", "pedidos", "combos", "avaliacoes"] as const).map(
+              (a) => (
+                <button
+                  key={a}
+                  onClick={() => setAba(a)}
+                  className={`whitespace-nowrap rounded-xl px-4 py-2.5 text-sm font-medium transition ${
+                    aba === a
+                      ? "bg-orange-500 text-white shadow-md"
+                      : "bg-slate-700/60 text-slate-300 hover:bg-slate-600 hover:text-white"
+                  }`}
+                >
+                  {a === "config" && "Configurações"}
+                  {a === "categorias" && "Categorias"}
+                  {a === "produtos" && "Produtos"}
+                  {a === "acrescimos" && "Acréscimos"}
+                  {a === "promocoes" && "Promoções"}
+                  {a === "pedidos" && "Pedidos"}
+                  {a === "combos" && "Combos"}
+                  {a === "avaliacoes" && "Avaliações"}
+                </button>
+              )
+            )}
+          </div>
         </nav>
       </header>
 
-      <main className="mx-auto max-w-4xl px-4 py-4">
+      <main className="mx-auto max-w-4xl px-4 py-6">
         {aba === "config" && (
           <AdminConfig config={data.config} onSalvar={atualizarConfig} />
         )}
@@ -242,94 +255,58 @@ function AdminConfig({
     }
   };
 
+  const inputClass = "mt-1.5 w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-slate-800 shadow-sm transition focus:border-orange-400 focus:outline-none focus:ring-2 focus:ring-orange-400/30";
   return (
-    <div className="space-y-4 rounded-xl border border-amber-200 bg-white p-4">
-      <h2 className="font-bold text-amber-900">Configurações da Loja</h2>
-      <div>
-        <label className="block text-sm text-gray-600">Logo (aparece ao lado do nome no topo)</label>
-        <div className="mt-1 flex items-center gap-3">
-          {form.logoUrl ? (
-            <img src={form.logoUrl} alt="Logo" className="h-14 w-14 rounded-lg object-cover" />
-          ) : (
-            <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-gray-100 text-2xl">🍔</div>
-          )}
-          <div className="flex-1">
-            <input
-              type="url"
-              value={form.logoUrl || ""}
-              onChange={(e) => setForm({ ...form, logoUrl: e.target.value || null })}
-              placeholder="URL da logo ou envie uma imagem"
-              className="w-full rounded-lg border border-amber-300 px-3 py-2 text-sm"
-            />
-            <label className="mt-1 inline-block cursor-pointer text-sm text-amber-700">
-              {uploadingLogo ? "Enviando..." : "Enviar imagem"}
-              <input type="file" accept="image/*" className="hidden" disabled={uploadingLogo} onChange={handleLogoUpload} />
-            </label>
+    <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xl shadow-slate-200/50">
+      <h2 className="text-lg font-bold text-slate-800 border-b border-slate-100 pb-3 mb-6">Configurações da Loja</h2>
+      <div className="space-y-5">
+        <div>
+          <label className="block text-sm font-medium text-slate-600">Logo (aparece ao lado do nome no topo)</label>
+          <div className="mt-1.5 flex items-center gap-4">
+            {form.logoUrl ? (
+              <img src={form.logoUrl} alt="Logo" className="h-16 w-16 rounded-xl object-cover border border-slate-200 shadow-sm" />
+            ) : (
+              <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-slate-100 text-2xl border border-slate-200">🍔</div>
+            )}
+            <div className="flex-1 min-w-0">
+              <input type="url" value={form.logoUrl || ""} onChange={(e) => setForm({ ...form, logoUrl: e.target.value || null })} placeholder="URL da logo ou envie uma imagem" className={inputClass} />
+              <label className="mt-2 inline-block cursor-pointer rounded-lg bg-slate-100 px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-200">
+                {uploadingLogo ? "Enviando..." : "Enviar imagem"}
+                <input type="file" accept="image/*" className="hidden" disabled={uploadingLogo} onChange={handleLogoUpload} />
+              </label>
+            </div>
           </div>
         </div>
-      </div>
-      <div>
-        <label className="block text-sm text-gray-600">Nome</label>
-        <input
-          value={form.nome}
-          onChange={(e) => setForm({ ...form, nome: e.target.value })}
-          className="mt-1 w-full rounded-lg border border-amber-300 px-3 py-2"
-        />
-      </div>
-      <div>
-        <label className="block text-sm text-gray-600">
-          WhatsApp (ex: 5511999999999)
-        </label>
-        <input
-          value={form.whatsapp}
-          onChange={(e) => setForm({ ...form, whatsapp: e.target.value })}
-          className="mt-1 w-full rounded-lg border border-amber-300 px-3 py-2"
-          placeholder="5511999999999"
-        />
-      </div>
-      <div>
-        <label className="block text-sm text-gray-600">Endereço</label>
-        <input
-          value={form.endereco || ""}
-          onChange={(e) => setForm({ ...form, endereco: e.target.value })}
-          className="mt-1 w-full rounded-lg border border-amber-300 px-3 py-2"
-        />
-      </div>
-      <div>
-        <label className="block text-sm text-gray-600">Horário (texto exibido)</label>
-        <input
-          value={form.horario || ""}
-          onChange={(e) => setForm({ ...form, horario: e.target.value })}
-          className="mt-1 w-full rounded-lg border border-amber-300 px-3 py-2"
-          placeholder="Seg a Dom: 11h às 23h"
-        />
-      </div>
-      <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className="block text-sm text-gray-600">Abertura (Aberto agora)</label>
-          <input
-            type="time"
-            value={form.horaAbertura ?? ""}
-            onChange={(e) => setForm({ ...form, horaAbertura: e.target.value || null })}
-            className="mt-1 w-full rounded-lg border border-amber-300 px-3 py-2"
-          />
+          <label className="block text-sm font-medium text-slate-600">Nome</label>
+          <input value={form.nome} onChange={(e) => setForm({ ...form, nome: e.target.value })} className={inputClass} />
         </div>
         <div>
-          <label className="block text-sm text-gray-600">Fechamento</label>
-          <input
-            type="time"
-            value={form.horaFechamento ?? ""}
-            onChange={(e) => setForm({ ...form, horaFechamento: e.target.value || null })}
-            className="mt-1 w-full rounded-lg border border-amber-300 px-3 py-2"
-          />
+          <label className="block text-sm font-medium text-slate-600">WhatsApp (ex: 5511999999999)</label>
+          <input value={form.whatsapp} onChange={(e) => setForm({ ...form, whatsapp: e.target.value })} placeholder="5511999999999" className={inputClass} />
         </div>
+        <div>
+          <label className="block text-sm font-medium text-slate-600">Endereço</label>
+          <input value={form.endereco || ""} onChange={(e) => setForm({ ...form, endereco: e.target.value })} className={inputClass} />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-slate-600">Horário (texto exibido)</label>
+          <input value={form.horario || ""} onChange={(e) => setForm({ ...form, horario: e.target.value })} placeholder="Seg a Dom: 11h às 23h" className={inputClass} />
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-slate-600">Abertura (Aberto agora)</label>
+            <input type="time" value={form.horaAbertura ?? ""} onChange={(e) => setForm({ ...form, horaAbertura: e.target.value || null })} className={inputClass} />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-slate-600">Fechamento</label>
+            <input type="time" value={form.horaFechamento ?? ""} onChange={(e) => setForm({ ...form, horaFechamento: e.target.value || null })} className={inputClass} />
+          </div>
+        </div>
+        <p className="text-xs text-slate-500 bg-slate-50 rounded-lg p-3">Se preenchidos, o header mostra &quot;Aberto&quot;/&quot;Fechado&quot; e o botão de pedido fica desabilitado quando fechado.</p>
       </div>
-      <p className="text-xs text-gray-500">Se preenchidos, o header mostra &quot;Aberto&quot;/&quot;Fechado&quot; e o botão de pedido fica desabilitado quando fechado.</p>
-      <button
-        onClick={() => onSalvar(form)}
-        className="rounded-lg bg-amber-600 px-4 py-2 text-white hover:bg-amber-700"
-      >
-        Salvar
+      <button onClick={() => onSalvar(form)} className="mt-6 w-full rounded-xl bg-orange-500 px-4 py-3 font-semibold text-white shadow-lg transition hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:ring-offset-2">
+        Salvar configurações
       </button>
     </div>
   );
@@ -359,60 +336,34 @@ function AdminCategorias({
     );
   };
 
+  const inputClass = "rounded-xl border border-slate-200 bg-white px-3 py-2 text-slate-800 shadow-sm focus:border-orange-400 focus:outline-none focus:ring-2 focus:ring-orange-400/30";
   return (
-    <div className="space-y-4 rounded-xl border border-amber-200 bg-white p-4">
-      <div className="flex items-center justify-between">
-        <h2 className="font-bold text-amber-900">Categorias</h2>
-        <button
-          onClick={adicionar}
-          className="rounded-lg bg-green-600 px-3 py-1 text-sm text-white"
-        >
-          + Nova
+    <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xl shadow-slate-200/50">
+      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 pb-4 mb-6">
+        <h2 className="text-lg font-bold text-slate-800">Categorias</h2>
+        <button onClick={adicionar} className="rounded-xl bg-emerald-500 px-4 py-2.5 text-sm font-semibold text-white shadow-md transition hover:bg-emerald-600">
+          + Nova categoria
         </button>
       </div>
-      <p className="text-sm text-gray-600">Seção &quot;Comida Japonesa&quot; agrupa as categorias no cardápio.</p>
+      <p className="text-sm text-slate-500 mb-4">Seção &quot;Comida Japonesa&quot; agrupa as categorias no cardápio.</p>
       <div className="space-y-3">
         {lista.map((cat) => (
-          <div
-            key={cat.id}
-            className="flex flex-wrap items-center gap-2 rounded-lg border border-amber-100 p-3"
-          >
-            <input
-              value={cat.nome}
-              onChange={(e) => atualizar(cat.id, "nome", e.target.value)}
-              className="flex-1 min-w-[120px] rounded border border-amber-200 px-2 py-1"
-            />
-            <select
-              value={cat.secao || "lanches"}
-              onChange={(e) => atualizar(cat.id, "secao", e.target.value)}
-              className="rounded border border-amber-200 px-2 py-1 text-sm"
-            >
+          <div key={cat.id} className="flex flex-wrap items-center gap-3 rounded-xl border border-slate-200 bg-slate-50/50 p-4">
+            <input value={cat.nome} onChange={(e) => atualizar(cat.id, "nome", e.target.value)} className={`flex-1 min-w-[140px] ${inputClass}`} placeholder="Nome" />
+            <select value={cat.secao || "lanches"} onChange={(e) => atualizar(cat.id, "secao", e.target.value)} className={inputClass}>
               <option value="lanches">Lanches</option>
               <option value="japonesa">Comida Japonesa</option>
             </select>
-            <span className="text-sm text-gray-500">Ordem:</span>
-            <input
-              type="number"
-              value={cat.ordem}
-              onChange={(e) =>
-                atualizar(cat.id, "ordem", parseInt(e.target.value) || 0)
-              }
-              className="w-14 rounded border border-amber-200 px-2 py-1"
-            />
-            <button
-              onClick={() => remover(cat.id)}
-              className="rounded bg-red-100 px-2 py-1 text-sm text-red-700"
-            >
+            <span className="text-sm text-slate-500">Ordem</span>
+            <input type="number" value={cat.ordem} onChange={(e) => atualizar(cat.id, "ordem", parseInt(e.target.value) || 0)} className={`w-16 ${inputClass}`} />
+            <button onClick={() => remover(cat.id)} className="rounded-xl bg-red-50 px-3 py-2 text-sm font-medium text-red-600 transition hover:bg-red-100">
               Excluir
             </button>
           </div>
         ))}
       </div>
-      <button
-        onClick={() => onSalvar(lista)}
-        className="rounded-lg bg-amber-600 px-4 py-2 text-white hover:bg-amber-700"
-      >
-        Salvar
+      <button onClick={() => onSalvar(lista)} className="mt-6 w-full rounded-xl bg-orange-500 px-4 py-3 font-semibold text-white shadow-lg transition hover:bg-orange-600">
+        Salvar categorias
       </button>
     </div>
   );
@@ -443,70 +394,36 @@ function AdminAcrescimos({
     setLista(lista.map((a) => (a.id === id ? { ...a, [campo]: valor } : a)));
   };
 
+  const inputClass = "rounded-xl border border-slate-200 bg-white px-3 py-2 text-slate-800 shadow-sm focus:border-orange-400 focus:outline-none focus:ring-2 focus:ring-orange-400/30";
   return (
-    <div className="space-y-4 rounded-xl border border-amber-200 bg-white p-4">
-      <div className="flex items-center justify-between">
-        <h2 className="font-bold text-amber-900">Acréscimos (extras nos lanches)</h2>
-        <button
-          onClick={adicionar}
-          className="rounded-lg bg-green-600 px-3 py-1 text-sm text-white"
-        >
-          + Novo
+    <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xl shadow-slate-200/50">
+      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 pb-4 mb-6">
+        <h2 className="text-lg font-bold text-slate-800">Acréscimos (extras nos lanches)</h2>
+        <button onClick={adicionar} className="rounded-xl bg-emerald-500 px-4 py-2.5 text-sm font-semibold text-white shadow-md transition hover:bg-emerald-600">
+          + Novo acréscimo
         </button>
       </div>
-      <p className="text-sm text-gray-600">
-        Os acréscimos aparecem quando o cliente clica em &quot;Adicionar&quot; no produto. Ex: Bacon, Queijo extra, Ovo.
-      </p>
+      <p className="text-sm text-slate-500 mb-4">Os acréscimos aparecem quando o cliente clica em &quot;Adicionar&quot; no produto. Ex: Bacon, Queijo extra, Ovo.</p>
       <div className="space-y-3">
         {lista.map((a) => (
-          <div
-            key={a.id}
-            className="flex flex-wrap items-center gap-2 rounded-lg border border-amber-100 p-3"
-          >
-            <input
-              value={a.nome}
-              onChange={(e) => atualizar(a.id, "nome", e.target.value)}
-              placeholder="Nome (ex: Bacon)"
-              className="min-w-[140px] flex-1 rounded border border-amber-200 px-2 py-1"
-            />
-            <span className="text-sm text-gray-500">+ R$</span>
-            <input
-              type="number"
-              step="0.01"
-              value={a.preco}
-              onChange={(e) => atualizar(a.id, "preco", parseFloat(e.target.value) || 0)}
-              placeholder="0,00"
-              className="w-20 rounded border border-amber-200 px-2 py-1"
-            />
-            <span className="text-sm text-gray-500">Ordem:</span>
-            <input
-              type="number"
-              value={a.ordem}
-              onChange={(e) => atualizar(a.id, "ordem", parseInt(e.target.value) || 0)}
-              className="w-14 rounded border border-amber-200 px-2 py-1"
-            />
-            <label className="flex items-center gap-1">
-              <input
-                type="checkbox"
-                checked={a.ativo}
-                onChange={(e) => atualizar(a.id, "ativo", e.target.checked)}
-              />
-              <span className="text-sm">Ativo</span>
+          <div key={a.id} className="flex flex-wrap items-center gap-3 rounded-xl border border-slate-200 bg-slate-50/50 p-4">
+            <input value={a.nome} onChange={(e) => atualizar(a.id, "nome", e.target.value)} placeholder="Nome (ex: Bacon)" className={`min-w-[140px] flex-1 ${inputClass}`} />
+            <span className="text-sm text-slate-500 font-medium">+ R$</span>
+            <input type="number" step="0.01" value={a.preco} onChange={(e) => atualizar(a.id, "preco", parseFloat(e.target.value) || 0)} placeholder="0,00" className={`w-20 ${inputClass}`} />
+            <span className="text-sm text-slate-500">Ordem</span>
+            <input type="number" value={a.ordem} onChange={(e) => atualizar(a.id, "ordem", parseInt(e.target.value) || 0)} className={`w-16 ${inputClass}`} />
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" checked={a.ativo} onChange={(e) => atualizar(a.id, "ativo", e.target.checked)} className="h-4 w-4 rounded border-slate-300 text-orange-500 focus:ring-orange-400" />
+              <span className="text-sm font-medium text-slate-600">Ativo</span>
             </label>
-            <button
-              onClick={() => remover(a.id)}
-              className="rounded bg-red-100 px-2 py-1 text-sm text-red-700"
-            >
+            <button onClick={() => remover(a.id)} className="rounded-xl bg-red-50 px-3 py-2 text-sm font-medium text-red-600 transition hover:bg-red-100">
               Excluir
             </button>
           </div>
         ))}
       </div>
-      <button
-        onClick={() => onSalvar(lista)}
-        className="rounded-lg bg-amber-600 px-4 py-2 text-white hover:bg-amber-700"
-      >
-        Salvar
+      <button onClick={() => onSalvar(lista)} className="mt-6 w-full rounded-xl bg-orange-500 px-4 py-3 font-semibold text-white shadow-lg transition hover:bg-orange-600">
+        Salvar acréscimos
       </button>
     </div>
   );
@@ -579,133 +496,64 @@ function AdminProdutos({
     );
   };
 
+  const inputClass = "rounded-xl border border-slate-200 bg-white px-3 py-2 text-slate-800 shadow-sm focus:border-orange-400 focus:outline-none focus:ring-2 focus:ring-orange-400/30";
   return (
-    <div className="space-y-4 rounded-xl border border-amber-200 bg-white p-4">
-      <div className="flex items-center justify-between">
-        <h2 className="font-bold text-amber-900">Produtos</h2>
-        <button
-          onClick={adicionar}
-          className="rounded-lg bg-green-600 px-3 py-1 text-sm text-white"
-        >
-          + Novo
+    <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xl shadow-slate-200/50">
+      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 pb-4 mb-6">
+        <h2 className="text-lg font-bold text-slate-800">Produtos</h2>
+        <button onClick={adicionar} className="rounded-xl bg-emerald-500 px-4 py-2.5 text-sm font-semibold text-white shadow-md transition hover:bg-emerald-600">
+          + Novo produto
         </button>
       </div>
-      <div className="space-y-3">
+      <div className="space-y-4">
         {lista.map((p) => (
-          <div
-            key={p.id}
-            className="rounded-lg border border-amber-100 p-3 space-y-2"
-          >
-            <div className="flex flex-wrap gap-2">
-              <input
-                value={p.nome}
-                onChange={(e) => atualizar(p.id, "nome", e.target.value)}
-                placeholder="Nome"
-                className="flex-1 min-w-[140px] rounded border border-amber-200 px-2 py-1"
-              />
-              <input
-                type="number"
-                step="0.01"
-                value={p.preco}
-                onChange={(e) =>
-                  atualizar(p.id, "preco", parseFloat(e.target.value) || 0)
-                }
-                placeholder="Preço"
-                className="w-24 rounded border border-amber-200 px-2 py-1"
-              />
-              <select
-                value={p.categoriaId}
-                onChange={(e) => atualizar(p.id, "categoriaId", e.target.value)}
-                className="rounded border border-amber-200 px-2 py-1"
-              >
+          <div key={p.id} className="rounded-xl border border-slate-200 bg-slate-50/50 p-4 space-y-3">
+            <div className="flex flex-wrap gap-3">
+              <input value={p.nome} onChange={(e) => atualizar(p.id, "nome", e.target.value)} placeholder="Nome" className={`flex-1 min-w-[160px] ${inputClass}`} />
+              <input type="number" step="0.01" value={p.preco} onChange={(e) => atualizar(p.id, "preco", parseFloat(e.target.value) || 0)} placeholder="Preço" className={`w-24 ${inputClass}`} />
+              <select value={p.categoriaId} onChange={(e) => atualizar(p.id, "categoriaId", e.target.value)} className={inputClass}>
                 {categorias.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.nome}
-                  </option>
+                  <option key={c.id} value={c.id}>{c.nome}</option>
                 ))}
               </select>
-              <label className="flex items-center gap-1">
-                <input
-                  type="checkbox"
-                  checked={p.disponivel}
-                  onChange={(e) => atualizar(p.id, "disponivel", e.target.checked)}
-                />
-                <span className="text-sm">Disponível</span>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" checked={p.disponivel} onChange={(e) => atualizar(p.id, "disponivel", e.target.checked)} className="h-4 w-4 rounded border-slate-300 text-orange-500 focus:ring-orange-400" />
+                <span className="text-sm font-medium text-slate-600">Disponível</span>
               </label>
-              <label className="flex items-center gap-1">
-                <input
-                  type="checkbox"
-                  checked={p.destaque ?? false}
-                  onChange={(e) => atualizar(p.id, "destaque", e.target.checked)}
-                />
-                <span className="text-sm">Destaque</span>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" checked={p.destaque ?? false} onChange={(e) => atualizar(p.id, "destaque", e.target.checked)} className="h-4 w-4 rounded border-slate-300 text-orange-500 focus:ring-orange-400" />
+                <span className="text-sm font-medium text-slate-600">Destaque</span>
               </label>
-              <button
-                onClick={() => remover(p.id)}
-                className="rounded bg-red-100 px-2 py-1 text-sm text-red-700"
-              >
+              <button onClick={() => remover(p.id)} className="rounded-xl bg-red-50 px-3 py-2 text-sm font-medium text-red-600 transition hover:bg-red-100">
                 Excluir
               </button>
             </div>
-            <input
-              value={p.descricao}
-              onChange={(e) => atualizar(p.id, "descricao", e.target.value)}
-              placeholder="Descrição curta"
-              className="w-full rounded border border-amber-200 px-2 py-1 text-sm"
-            />
+            <input value={p.descricao} onChange={(e) => atualizar(p.id, "descricao", e.target.value)} placeholder="Descrição curta" className={`w-full ${inputClass}`} />
             <div>
-              <label className="block text-xs text-gray-500">Ingredientes (um por linha ou separados por vírgula)</label>
-              <textarea
-                value={p.ingredientes ?? ""}
-                onChange={(e) => atualizar(p.id, "ingredientes", e.target.value)}
-                placeholder="Ex: Pão, hambúrguer, queijo, alface, tomate"
-                className="mt-0.5 w-full rounded border border-amber-200 px-2 py-1 text-sm"
-                rows={2}
-              />
+              <label className="block text-xs font-medium text-slate-500 mb-1">Ingredientes (um por linha ou separados por vírgula)</label>
+              <textarea value={p.ingredientes ?? ""} onChange={(e) => atualizar(p.id, "ingredientes", e.target.value)} placeholder="Ex: Pão, hambúrguer, queijo, alface, tomate" className={`w-full ${inputClass}`} rows={2} />
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3 flex-wrap">
               {p.imagem ? (
-                <img
-                  src={p.imagem}
-                  alt={p.nome}
-                  className="h-16 w-16 rounded object-cover"
-                />
+                <img src={p.imagem} alt={p.nome} className="h-20 w-20 rounded-xl object-cover border border-slate-200 shadow-sm" />
               ) : (
-                <div className="flex h-16 w-16 items-center justify-center rounded bg-gray-100 text-xs text-gray-500">
-                  Sem foto
-                </div>
+                <div className="flex h-20 w-20 items-center justify-center rounded-xl bg-slate-100 border border-slate-200 text-xs text-slate-500">Sem foto</div>
               )}
-              <label className="cursor-pointer rounded bg-amber-100 px-2 py-1 text-sm text-amber-800">
+              <label className="cursor-pointer rounded-xl bg-slate-100 px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-200">
                 {uploading === p.id ? "Enviando..." : "Enviar foto"}
-                <input
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  disabled={!!uploading}
-                  onChange={(e) => {
-                    const f = e.target.files?.[0];
-                    if (f) uploadFoto(p.id, f);
-                  }}
-                />
+                <input type="file" accept="image/*" className="hidden" disabled={!!uploading} onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadFoto(p.id, f); }} />
               </label>
               {p.imagem && (
-                <button
-                  type="button"
-                  onClick={() => atualizar(p.id, "imagem", null)}
-                  className="text-xs text-red-600"
-                >
-                  Remover
+                <button type="button" onClick={() => atualizar(p.id, "imagem", null)} className="text-sm font-medium text-red-600 hover:underline">
+                  Remover foto
                 </button>
               )}
             </div>
           </div>
         ))}
       </div>
-      <button
-        onClick={() => onSalvar(lista)}
-        className="rounded-lg bg-amber-600 px-4 py-2 text-white hover:bg-amber-700"
-      >
-        Salvar
+      <button onClick={() => onSalvar(lista)} className="mt-6 w-full rounded-xl bg-orange-500 px-4 py-3 font-semibold text-white shadow-lg transition hover:bg-orange-600">
+        Salvar produtos
       </button>
     </div>
   );
@@ -745,73 +593,35 @@ function AdminPromocoes({
     );
   };
 
+  const inputClass = "rounded-xl border border-slate-200 bg-white px-3 py-2 text-slate-800 shadow-sm focus:border-orange-400 focus:outline-none focus:ring-2 focus:ring-orange-400/30";
   return (
-    <div className="space-y-4 rounded-xl border border-amber-200 bg-white p-4">
-      <div className="flex items-center justify-between">
-        <h2 className="font-bold text-amber-900">Promoções do Dia</h2>
-        <button
-          onClick={adicionar}
-          className="rounded-lg bg-green-600 px-3 py-1 text-sm text-white"
-        >
-          + Nova
+    <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xl shadow-slate-200/50">
+      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 pb-4 mb-6">
+        <h2 className="text-lg font-bold text-slate-800">Promoções do Dia</h2>
+        <button onClick={adicionar} className="rounded-xl bg-emerald-500 px-4 py-2.5 text-sm font-semibold text-white shadow-md transition hover:bg-emerald-600">
+          + Nova promoção
         </button>
       </div>
-      <div className="space-y-3">
+      <div className="space-y-4">
         {lista.map((promo) => (
-          <div
-            key={promo.id}
-            className="rounded-lg border border-amber-100 p-3 space-y-2"
-          >
-            <div className="flex flex-wrap gap-2">
-              <input
-                value={promo.titulo}
-                onChange={(e) => atualizar(promo.id, "titulo", e.target.value)}
-                placeholder="Título"
-                className="flex-1 min-w-[140px] rounded border border-amber-200 px-2 py-1"
-              />
-              <input
-                type="number"
-                step="0.01"
-                value={promo.precoPromocional ?? ""}
-                onChange={(e) =>
-                  atualizar(
-                    promo.id,
-                    "precoPromocional",
-                    e.target.value ? parseFloat(e.target.value) : undefined
-                  )
-                }
-                placeholder="Preço promocional"
-                className="w-28 rounded border border-amber-200 px-2 py-1"
-              />
-              <label className="flex items-center gap-1">
-                <input
-                  type="checkbox"
-                  checked={promo.ativa}
-                  onChange={(e) => atualizar(promo.id, "ativa", e.target.checked)}
-                />
-                <span className="text-sm">Ativa</span>
+          <div key={promo.id} className="rounded-xl border border-slate-200 bg-slate-50/50 p-4 space-y-3">
+            <div className="flex flex-wrap gap-3">
+              <input value={promo.titulo} onChange={(e) => atualizar(promo.id, "titulo", e.target.value)} placeholder="Título" className={`flex-1 min-w-[160px] ${inputClass}`} />
+              <input type="number" step="0.01" value={promo.precoPromocional ?? ""} onChange={(e) => atualizar(promo.id, "precoPromocional", e.target.value ? parseFloat(e.target.value) : undefined)} placeholder="Preço promocional" className={`w-28 ${inputClass}`} />
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" checked={promo.ativa} onChange={(e) => atualizar(promo.id, "ativa", e.target.checked)} className="h-4 w-4 rounded border-slate-300 text-orange-500 focus:ring-orange-400" />
+                <span className="text-sm font-medium text-slate-600">Ativa</span>
               </label>
-              <button
-                onClick={() => remover(promo.id)}
-                className="rounded bg-red-100 px-2 py-1 text-sm text-red-700"
-              >
+              <button onClick={() => remover(promo.id)} className="rounded-xl bg-red-50 px-3 py-2 text-sm font-medium text-red-600 transition hover:bg-red-100">
                 Excluir
               </button>
             </div>
-            <input
-              value={promo.descricao}
-              onChange={(e) => atualizar(promo.id, "descricao", e.target.value)}
-              placeholder="Descrição da promoção"
-              className="w-full rounded border border-amber-200 px-2 py-1 text-sm"
-            />
+            <input value={promo.descricao} onChange={(e) => atualizar(promo.id, "descricao", e.target.value)} placeholder="Descrição da promoção" className={`w-full ${inputClass}`} />
           </div>
         ))}
       </div>
-      <button
-        onClick={() => onSalvar(lista)}
-        className="rounded-lg bg-amber-600 px-4 py-2 text-white hover:bg-amber-700"
-      >
-        Salvar
+      <button onClick={() => onSalvar(lista)} className="mt-6 w-full rounded-xl bg-orange-500 px-4 py-3 font-semibold text-white shadow-lg transition hover:bg-orange-600">
+        Salvar promoções
       </button>
     </div>
   );
@@ -846,31 +656,35 @@ function AdminPedidos() {
   const formatPrice = (n: number) => new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(n);
 
   return (
-    <div className="space-y-4 rounded-xl border border-amber-200 bg-white p-4">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <h2 className="font-bold text-amber-900">Pedidos</h2>
-        <label className="flex items-center gap-2">
-          <input type="checkbox" checked={hoje} onChange={(e) => setHoje(e.target.checked)} />
-          <span className="text-sm">Só hoje</span>
-        </label>
-        <button onClick={carregar} className="rounded-lg bg-amber-100 px-3 py-1.5 text-sm text-amber-800 hover:bg-amber-200">
-          Atualizar
-        </button>
+    <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xl shadow-slate-200/50">
+      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 pb-4 mb-6">
+        <h2 className="text-lg font-bold text-slate-800">Pedidos</h2>
+        <div className="flex items-center gap-3">
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" checked={hoje} onChange={(e) => setHoje(e.target.checked)} className="h-4 w-4 rounded border-slate-300 text-orange-500 focus:ring-orange-400" />
+            <span className="text-sm font-medium text-slate-600">Só hoje</span>
+          </label>
+          <button onClick={carregar} className="rounded-xl bg-slate-100 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-200">
+            Atualizar
+          </button>
+        </div>
       </div>
       {loading ? (
-        <p className="text-sm text-gray-500">Carregando...</p>
+        <div className="flex items-center justify-center py-12">
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-orange-500 border-t-transparent" />
+        </div>
       ) : pedidos.length === 0 ? (
-        <p className="text-sm text-gray-500">Nenhum pedido encontrado.</p>
+        <p className="py-8 text-center text-slate-500">Nenhum pedido encontrado.</p>
       ) : (
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto rounded-xl border border-slate-200">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-amber-200 text-left">
-                <th className="p-2">Data/Hora</th>
-                <th className="p-2">Cliente</th>
-                <th className="p-2">Itens</th>
-                <th className="p-2">Total</th>
-                <th className="p-2">Entrega</th>
+              <tr className="border-b border-slate-200 bg-slate-50 text-left">
+                <th className="p-3 font-semibold text-slate-700">Data/Hora</th>
+                <th className="p-3 font-semibold text-slate-700">Cliente</th>
+                <th className="p-3 font-semibold text-slate-700">Itens</th>
+                <th className="p-3 font-semibold text-slate-700">Total</th>
+                <th className="p-3 font-semibold text-slate-700">Entrega</th>
               </tr>
             </thead>
             <tbody>
@@ -881,12 +695,12 @@ function AdminPedidos() {
                 } catch {}
                 const resumo = itensParsed.map((i) => `${i.quantidade}x ${i.nome}`).join("; ") || "—";
                 return (
-                  <tr key={p.id} className="border-b border-amber-100">
-                    <td className="p-2">{formatDate(p.createdAt)}</td>
-                    <td className="p-2">{p.nomeCliente || "—"}</td>
-                    <td className="max-w-[200px] truncate p-2" title={resumo}>{resumo}</td>
-                    <td className="p-2 font-medium">{formatPrice(Number(p.total))}</td>
-                    <td className="p-2">{p.tipoEntrega === "entrega" ? "Entrega" : "Retirada"}</td>
+                  <tr key={p.id} className="border-b border-slate-100 hover:bg-slate-50/50 transition">
+                    <td className="p-3 text-slate-700">{formatDate(p.createdAt)}</td>
+                    <td className="p-3 font-medium text-slate-800">{p.nomeCliente || "—"}</td>
+                    <td className="max-w-[200px] truncate p-3 text-slate-600" title={resumo}>{resumo}</td>
+                    <td className="p-3 font-semibold text-slate-800">{formatPrice(Number(p.total))}</td>
+                    <td className="p-3"><span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${p.tipoEntrega === "entrega" ? "bg-blue-100 text-blue-700" : "bg-slate-100 text-slate-700"}`}>{p.tipoEntrega === "entrega" ? "Entrega" : "Retirada"}</span></td>
                   </tr>
                 );
               })}
@@ -964,69 +778,48 @@ function AdminCombos({
     setLista(lista.map((c) => (c.id === comboId ? { ...c, itens: c.itens.filter((_, i) => i !== idx) } : c)));
   };
 
+  const inputClass = "rounded-xl border border-slate-200 bg-white px-3 py-2 text-slate-800 shadow-sm focus:border-orange-400 focus:outline-none focus:ring-2 focus:ring-orange-400/30";
   return (
-    <div className="space-y-4 rounded-xl border border-amber-200 bg-white p-4">
-      <div className="flex items-center justify-between">
-        <h2 className="font-bold text-amber-900">Combos</h2>
-        <button onClick={adicionar} className="rounded-lg bg-green-600 px-3 py-1 text-sm text-white">
+    <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xl shadow-slate-200/50">
+      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 pb-4 mb-6">
+        <h2 className="text-lg font-bold text-slate-800">Combos</h2>
+        <button onClick={adicionar} className="rounded-xl bg-emerald-500 px-4 py-2.5 text-sm font-semibold text-white shadow-md transition hover:bg-emerald-600">
           + Novo combo
         </button>
       </div>
       <div className="space-y-4">
         {lista.map((c) => (
-          <div key={c.id} className="rounded-lg border border-amber-100 p-4 space-y-2">
-            <div className="flex flex-wrap gap-2">
-              <input
-                value={c.nome}
-                onChange={(e) => atualizar(c.id, "nome", e.target.value)}
-                placeholder="Nome do combo"
-                className="min-w-[180px] flex-1 rounded border border-amber-200 px-2 py-1.5"
-              />
-              <input
-                type="number"
-                step="0.01"
-                value={c.preco}
-                onChange={(e) => atualizar(c.id, "preco", parseFloat(e.target.value) || 0)}
-                placeholder="Preço"
-                className="w-24 rounded border border-amber-200 px-2 py-1.5"
-              />
-              <label className="flex items-center gap-1">
-                <input type="checkbox" checked={c.ativo} onChange={(e) => atualizar(c.id, "ativo", e.target.checked)} />
-                <span className="text-sm">Ativo</span>
+          <div key={c.id} className="rounded-xl border border-slate-200 bg-slate-50/50 p-4 space-y-3">
+            <div className="flex flex-wrap gap-3">
+              <input value={c.nome} onChange={(e) => atualizar(c.id, "nome", e.target.value)} placeholder="Nome do combo" className={`min-w-[180px] flex-1 ${inputClass}`} />
+              <input type="number" step="0.01" value={c.preco} onChange={(e) => atualizar(c.id, "preco", parseFloat(e.target.value) || 0)} placeholder="Preço" className={`w-24 ${inputClass}`} />
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" checked={c.ativo} onChange={(e) => atualizar(c.id, "ativo", e.target.checked)} className="h-4 w-4 rounded border-slate-300 text-orange-500 focus:ring-orange-400" />
+                <span className="text-sm font-medium text-slate-600">Ativo</span>
               </label>
-              <button onClick={() => remover(c.id)} className="rounded bg-red-100 px-2 py-1 text-sm text-red-700">
+              <button onClick={() => remover(c.id)} className="rounded-xl bg-red-50 px-3 py-2 text-sm font-medium text-red-600 transition hover:bg-red-100">
                 Excluir
               </button>
             </div>
-            <p className="text-xs text-gray-500">Itens do combo:</p>
-            <div className="space-y-1 pl-2">
+            <p className="text-xs font-medium text-slate-500">Itens do combo:</p>
+            <div className="space-y-2 pl-1">
               {c.itens.map((it, idx) => (
-                <div key={idx} className="flex items-center gap-2">
-                  <select
-                    value={it.produtoId}
-                    onChange={(e) => updateComboItem(c.id, idx, "produtoId", e.target.value)}
-                    className="rounded border border-amber-200 px-2 py-1 text-sm"
-                  >
+                <div key={idx} className="flex items-center gap-2 flex-wrap">
+                  <select value={it.produtoId} onChange={(e) => updateComboItem(c.id, idx, "produtoId", e.target.value)} className={inputClass}>
                     {produtos.map((p) => (
                       <option key={p.id} value={p.id}>{p.nome}</option>
                     ))}
                   </select>
-                  <input
-                    type="number"
-                    min={1}
-                    value={it.quantidade}
-                    onChange={(e) => updateComboItem(c.id, idx, "quantidade", e.target.value)}
-                    className="w-14 rounded border border-amber-200 px-2 py-1 text-sm"
-                  />
-                  <button type="button" onClick={() => removeComboItem(c.id, idx)} className="text-red-600 text-sm">Remover</button>
+                  <input type="number" min={1} value={it.quantidade} onChange={(e) => updateComboItem(c.id, idx, "quantidade", e.target.value)} className={`w-16 ${inputClass}`} />
+                  <button type="button" onClick={() => removeComboItem(c.id, idx)} className="text-sm font-medium text-red-600 hover:underline">Remover</button>
                 </div>
               ))}
-              <button type="button" onClick={() => addItem(c.id)} className="text-sm text-amber-700 hover:underline">+ Adicionar item</button>
+              <button type="button" onClick={() => addItem(c.id)} className="text-sm font-medium text-orange-600 hover:underline">+ Adicionar item</button>
             </div>
           </div>
         ))}
       </div>
-      <button onClick={() => onSalvar(lista)} className="rounded-lg bg-amber-600 px-4 py-2 text-white hover:bg-amber-700">
+      <button onClick={() => onSalvar(lista)} className="mt-6 w-full rounded-xl bg-orange-500 px-4 py-3 font-semibold text-white shadow-lg transition hover:bg-orange-600">
         Salvar combos
       </button>
     </div>
@@ -1054,26 +847,28 @@ function AdminAvaliacoes() {
   const formatDate = (s: string) => new Date(s).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", year: "2-digit", hour: "2-digit", minute: "2-digit" });
 
   return (
-    <div className="space-y-4 rounded-xl border border-amber-200 bg-white p-4">
-      <div className="flex items-center justify-between">
-        <h2 className="font-bold text-amber-900">Avaliações</h2>
-        <button onClick={carregar} className="rounded-lg bg-amber-100 px-3 py-1.5 text-sm text-amber-800 hover:bg-amber-200">
+    <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xl shadow-slate-200/50">
+      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 pb-4 mb-6">
+        <h2 className="text-lg font-bold text-slate-800">Avaliações</h2>
+        <button onClick={carregar} className="rounded-xl bg-slate-100 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-200">
           Atualizar
         </button>
       </div>
       {loading ? (
-        <p className="text-sm text-gray-500">Carregando...</p>
+        <div className="flex items-center justify-center py-12">
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-orange-500 border-t-transparent" />
+        </div>
       ) : avaliacoes.length === 0 ? (
-        <p className="text-sm text-gray-500">Nenhuma avaliação ainda.</p>
+        <p className="py-8 text-center text-slate-500">Nenhuma avaliação ainda.</p>
       ) : (
         <ul className="space-y-3">
           {avaliacoes.map((a) => (
-            <li key={a.id} className="rounded-lg border border-amber-100 p-3">
-              <div className="flex items-center justify-between gap-2">
-                <span className="font-medium">{["", "★", "★★", "★★★", "★★★★", "★★★★★"][a.nota] || a.nota + " estrelas"}</span>
-                <span className="text-xs text-gray-500">{formatDate(a.createdAt)}</span>
+            <li key={a.id} className="rounded-xl border border-slate-200 bg-slate-50/50 p-4">
+              <div className="flex items-center justify-between gap-2 flex-wrap">
+                <span className="text-lg text-amber-500">{["", "★", "★★", "★★★", "★★★★", "★★★★★"][a.nota] || a.nota + " estrelas"}</span>
+                <span className="text-xs text-slate-500">{formatDate(a.createdAt)}</span>
               </div>
-              {a.comentario && <p className="mt-1 text-sm text-gray-600">{a.comentario}</p>}
+              {a.comentario && <p className="mt-2 text-sm text-slate-600">{a.comentario}</p>}
             </li>
           ))}
         </ul>

@@ -40,15 +40,18 @@ export default function AdminPage() {
 
   if (!autenticado) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-amber-50 px-4">
+      <div className="flex min-h-screen items-center justify-center bg-slate-100 px-4">
         <form
           onSubmit={handleLogin}
-          className="w-full max-w-sm rounded-2xl border border-amber-200 bg-white p-6 shadow-lg"
+          className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-8 shadow-xl shadow-slate-200/50"
         >
-          <h1 className="mb-4 text-xl font-bold text-amber-900">
+          <div className="mb-6 flex justify-center">
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-800 text-2xl shadow-lg">⚙️</div>
+          </div>
+          <h1 className="mb-1 text-center text-xl font-bold text-slate-800">
             Painel do Dono
           </h1>
-          <p className="mb-4 text-sm text-gray-600">
+          <p className="mb-6 text-center text-sm text-slate-500">
             Digite a senha para acessar
           </p>
           <input
@@ -56,13 +59,13 @@ export default function AdminPage() {
             value={senha}
             onChange={(e) => setSenha(e.target.value)}
             placeholder="Senha"
-            className="mb-4 w-full rounded-lg border border-amber-300 px-4 py-3 focus:border-amber-500 focus:outline-none"
+            className="mb-4 w-full rounded-xl border border-slate-200 bg-white px-4 py-3.5 text-slate-800 shadow-sm transition focus:border-orange-400 focus:outline-none focus:ring-2 focus:ring-orange-400/30"
             autoFocus
           />
-          {erro && <p className="mb-4 text-sm text-red-600">{erro}</p>}
+          {erro && <p className="mb-4 text-sm font-medium text-red-600">{erro}</p>}
           <button
             type="submit"
-            className="w-full rounded-lg bg-amber-600 py-3 font-medium text-white hover:bg-amber-700"
+            className="w-full rounded-xl bg-orange-500 py-3.5 font-semibold text-white shadow-lg transition hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:ring-offset-2"
           >
             Entrar
           </button>

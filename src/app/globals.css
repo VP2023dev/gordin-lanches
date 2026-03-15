@@ -74,6 +74,23 @@ html {
   box-shadow: 0 6px 20px var(--accent-glow);
 }
 
+/* ========== Painel Admin ========== */
+.admin-page {
+  --admin-bg: #f1f5f9;
+  --admin-card: #ffffff;
+  --admin-border: #e2e8f0;
+  --admin-head: #0f172a;
+  --admin-muted: #64748b;
+  --admin-primary: #ea580c;
+  --admin-primary-hover: #c2410c;
+  --admin-nav-bg: #1e293b;
+  --admin-nav-text: #94a3b8;
+  --admin-nav-active: #f8fafc;
+  --admin-input-focus: #fdba74;
+  --admin-success: #16a34a;
+  --admin-danger: #dc2626;
+}
+
 /* Card com elevação suave */
 .card-lift {
   box-shadow: var(--shadow-card);
