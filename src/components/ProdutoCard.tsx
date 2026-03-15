@@ -57,31 +57,31 @@ export function ProdutoCard({ produto, acrescimos }: ProdutoCardProps) {
 
   return (
     <>
-      <article
-        className="flex gap-4 border-b border-[var(--border)] bg-[var(--card-bg)] py-4 last:border-b-0 transition-colors hover:bg-[var(--background)]/30"
-      >
-        <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-xl border-2 border-[var(--card-border)] shadow-[var(--shadow-card)]">
+      <article className="cardapio-card flex gap-4 rounded-xl border border-[var(--border)] bg-[var(--card-bg)] p-4 shadow-[var(--shadow-card)] hover:border-[var(--accent)]/30 hover:shadow-[var(--shadow)]">
+        <div className="relative h-28 w-28 shrink-0 overflow-hidden rounded-xl border-2 border-[var(--card-border)] shadow-sm">
           <img
             src={imgSrc}
             alt={produto.nome}
-            className="h-full w-full object-cover"
+            className="cardapio-card-img h-full w-full object-cover"
           />
           {produto.destaque && (
-            <span className="absolute left-1 top-1 rounded-md bg-gradient-to-r from-[var(--accent)] to-[var(--gold)] px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white shadow-md">
+            <span className="absolute left-1 top-1 rounded-lg bg-gradient-to-r from-[var(--accent)] to-[var(--gold)] px-2 py-1 text-[10px] font-bold uppercase tracking-wide text-white shadow-lg">
               Destaque
             </span>
           )}
         </div>
 
-        <div className="min-w-0 flex-1">
-          <h3 className="font-bold text-[var(--foreground)]">{produto.nome}</h3>
-          {ingredientesTexto && (
-            <p className="mt-0.5 line-clamp-2 text-sm text-[var(--muted)]">
-              {ingredientesTexto}
-            </p>
-          )}
-          <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
-            <span className="text-lg font-extrabold text-[var(--accent)]">
+        <div className="min-w-0 flex-1 flex flex-col justify-between py-0.5">
+          <div>
+            <h3 className="font-bold text-[var(--foreground)] text-base leading-tight">{produto.nome}</h3>
+            {ingredientesTexto && (
+              <p className="mt-1 line-clamp-2 text-sm text-[var(--muted)] leading-snug">
+                {ingredientesTexto}
+              </p>
+            )}
+          </div>
+          <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
+            <span className="inline-flex items-center rounded-lg bg-[var(--accent-soft)] px-3 py-1.5 text-base font-extrabold text-[var(--accent)]">
               {formatPrice(produto.preco)}
             </span>
             <button

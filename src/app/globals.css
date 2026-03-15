@@ -99,3 +99,19 @@ html {
 .card-lift:hover {
   box-shadow: var(--shadow);
 }
+
+/* Cardápio: card de produto com hover suave */
+.cardapio-card {
+  transition: background-color 0.2s ease, box-shadow 0.2s ease;
+}
+.cardapio-card:active {
+  transform: scale(0.99);
+}
+
+/* Imagem do produto com zoom sutil no hover */
+.cardapio-card-img {
+  transition: transform 0.25s ease;
+}
+.cardapio-card:hover .cardapio-card-img {
+  transform: scale(1.04);
+}

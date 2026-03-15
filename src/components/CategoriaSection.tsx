@@ -22,14 +22,15 @@ export function CategoriaSection({
 
   return (
     <section className="px-4 py-6" id={`cat-${categoria.id}`}>
-      <h2 className="mb-3 text-lg font-extrabold text-[var(--foreground)] sm:text-xl">
-        {categoria.nome}
-      </h2>
-      <div className="card-lift overflow-hidden rounded-2xl border-2 border-[var(--card-border)] bg-[var(--card-bg)]">
+      <div className="mb-4 flex items-center gap-3">
+        <span className="h-8 w-1 shrink-0 rounded-full bg-gradient-to-b from-[var(--accent)] to-[var(--gold)]" aria-hidden />
+        <h2 className="text-xl font-extrabold text-[var(--foreground)] sm:text-2xl tracking-tight">
+          {categoria.nome}
+        </h2>
+      </div>
+      <div className="space-y-2">
         {produtosDaCategoria.map((produto) => (
-          <div key={produto.id} className="px-4">
-            <ProdutoCard produto={produto} acrescimos={acrescimos} />
-          </div>
+          <ProdutoCard key={produto.id} produto={produto} acrescimos={acrescimos} />
         ))}
       </div>
     </section>

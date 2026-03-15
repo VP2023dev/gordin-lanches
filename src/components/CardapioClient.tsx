@@ -54,22 +54,27 @@ export function CardapioClient({
         <PromocoesDia promocoes={promocoes} />
 
         <div
-          className="sticky top-[57px] z-30 border-b-2 border-[var(--border-strong)] bg-[var(--card-bg)]/98 px-4 py-3 shadow-[var(--shadow)] backdrop-blur-md sm:top-[65px]"
+          className="sticky top-[57px] z-30 border-b-2 border-[var(--border-strong)] bg-[var(--card-bg)]/98 px-4 py-4 shadow-[var(--shadow)] backdrop-blur-md sm:top-[65px]"
         >
-          <input
-            type="search"
-            placeholder="Buscar lanche, sushi, ingrediente..."
-            value={busca}
-            onChange={(e) => setBusca(e.target.value)}
-            className="w-full rounded-xl border-2 border-[var(--border)] bg-[var(--card-bg)] px-4 py-3 text-[var(--foreground)] placeholder-[var(--muted)] transition focus:border-[var(--accent)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-glow)]"
-          />
-          <div className="mt-2 flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+          <div className="relative">
+            <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-[var(--muted)]" aria-hidden>
+              <SearchIcon />
+            </span>
+            <input
+              type="search"
+              placeholder="Buscar lanche, sushi, ingrediente..."
+              value={busca}
+              onChange={(e) => setBusca(e.target.value)}
+              className="w-full rounded-xl border-2 border-[var(--border)] bg-[var(--card-bg)] py-3 pl-11 pr-4 text-[var(--foreground)] placeholder-[var(--muted)] transition focus:border-[var(--accent)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-glow)]"
+            />
+          </div>
+          <div className="mt-3 flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
             <button
               type="button"
               onClick={() => setCategoriaFiltro(null)}
-              className={`shrink-0 rounded-xl px-4 py-2.5 text-sm font-bold transition ${
+              className={`shrink-0 rounded-full px-4 py-2.5 text-sm font-bold transition ${
                 !categoriaFiltro
-                  ? "btn-accent text-white"
+                  ? "btn-accent text-white shadow-md"
                   : "bg-[var(--border)] text-[var(--muted)] hover:bg-[var(--border-strong)] hover:text-[var(--foreground)]"
               }`}
             >
@@ -82,9 +87,9 @@ export function CardapioClient({
                 onClick={() =>
                   setCategoriaFiltro(categoriaFiltro === cat.id ? null : cat.id)
                 }
-                className={`shrink-0 rounded-xl px-4 py-2.5 text-sm font-bold transition ${
+                className={`shrink-0 rounded-full px-4 py-2.5 text-sm font-bold transition ${
                   categoriaFiltro === cat.id
-                    ? "btn-accent text-white"
+                    ? "btn-accent text-white shadow-md"
                     : "bg-[var(--border)] text-[var(--muted)] hover:bg-[var(--border-strong)] hover:text-[var(--foreground)]"
                 }`}
               >
@@ -97,15 +102,18 @@ export function CardapioClient({
         {/* Seção Combos */}
         {combos.length > 0 && (
           <section className="px-4 py-6">
-            <h2 className="text-xl font-extrabold text-[var(--foreground)] mb-4">🍔 Combos</h2>
+            <div className="mb-4 flex items-center gap-3">
+              <span className="h-8 w-1 shrink-0 rounded-full bg-gradient-to-b from-[var(--accent)] to-[var(--gold)]" aria-hidden />
+              <h2 className="text-xl font-extrabold text-[var(--foreground)] sm:text-2xl tracking-tight">🍔 Combos</h2>
+            </div>
             <ul className="space-y-3">
               {combos.filter((c) => c.ativo).map((combo) => (
                 <li
                   key={combo.id}
-                  className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border-2 border-[var(--card-border)] bg-[var(--card-bg)] p-4 shadow-[var(--shadow)] transition hover:shadow-[var(--shadow-hover)]"
+                  className="cardapio-card flex flex-wrap items-center justify-between gap-4 rounded-xl border border-[var(--border)] bg-[var(--card-bg)] p-4 shadow-[var(--shadow-card)] hover:border-[var(--accent)]/30 hover:shadow-[var(--shadow)]"
                 >
                   <div className="min-w-0 flex-1">
-                    <p className="font-bold text-[var(--foreground)]">{combo.nome}</p>
+                    <p className="font-bold text-[var(--foreground)] text-base">{combo.nome}</p>
                     {combo.descricao && <p className="text-sm text-[var(--muted)] mt-0.5">{combo.descricao}</p>}
                     {combo.itens?.length > 0 && (
                       <p className="text-xs text-[var(--muted)] mt-1">
@@ -114,7 +122,7 @@ export function CardapioClient({
                     )}
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className="text-lg font-bold text-[var(--accent)]">{formatPrice(combo.preco)}</span>
+                    <span className="inline-flex items-center rounded-lg bg-[var(--accent-soft)] px-3 py-1.5 text-base font-extrabold text-[var(--accent)]">{formatPrice(combo.preco)}</span>
                     <button
                       type="button"
                       onClick={() => addCombo(combo, 1)}
@@ -142,13 +150,14 @@ export function CardapioClient({
         {/* Seção Comida Japonesa */}
         {categoriasJaponesaComProdutos.length > 0 && (
           <section className="mt-10 border-t-2 border-[var(--border-strong)] pt-8">
-            <div className="px-4 mb-4 flex items-center gap-3">
-              <span className="text-3xl" aria-hidden>🍣</span>
-              <h2 className="text-2xl font-extrabold text-[var(--foreground)]">
+            <div className="px-4 mb-2 flex items-center gap-3">
+              <span className="h-8 w-1 shrink-0 rounded-full bg-gradient-to-b from-[var(--accent)] to-[var(--gold)]" aria-hidden />
+              <span className="text-2xl" aria-hidden>🍣</span>
+              <h2 className="text-xl font-extrabold text-[var(--foreground)] sm:text-2xl tracking-tight">
                 Comida Japonesa
               </h2>
             </div>
-            <p className="px-4 text-sm text-[var(--muted)] mb-4">
+            <p className="px-4 text-sm text-[var(--muted)] mb-6">
               Gordinho Sushi — sushis, combinados, entradas e sobremesas
             </p>
             {categoriasJaponesaComProdutos.map((categoria) => (
@@ -163,5 +172,14 @@ export function CardapioClient({
         )}
       </main>
     </div>
+  );
+}
+
+function SearchIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2">
+      <circle cx="11" cy="11" r="8" />
+      <path d="m21 21-4.35-4.35" />
+    </svg>
   );
 }
