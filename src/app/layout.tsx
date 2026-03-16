@@ -30,7 +30,15 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <CartProvider>
-          <ConfigShell>{children}</ConfigShell>
+          <ConfigShell>
+            {children}
+            <footer className="mt-10 border-t border-[var(--border-strong)] bg-[var(--card-bg)]/90 px-4 py-4 text-center text-xs text-[var(--muted)]">
+              <div className="mx-auto max-w-4xl flex flex-col items-center justify-center gap-1 sm:flex-row sm:justify-between">
+                <span>© {new Date().getFullYear()} MD Soluções. Todos os direitos reservados.</span>
+                <span className="opacity-80">Sistema desenvolvido por MD Soluções.</span>
+              </div>
+            </footer>
+          </ConfigShell>
         </CartProvider>
       </body>
     </html>
