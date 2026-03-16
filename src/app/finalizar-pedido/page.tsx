@@ -175,17 +175,22 @@ export default function FinalizarPedidoPage() {
         <div className="rounded-2xl border-2 border-[var(--card-border)] bg-[var(--card-bg)] p-8 shadow-[var(--shadow-hover)]">
           <p className="text-5xl mb-4">🛒</p>
           <h1 className="text-2xl font-extrabold text-[var(--foreground)]">
-            Carrinho vazio
+            Nenhum item adicionado ainda
           </h1>
           <p className="mt-2 text-[var(--muted)]">
-            Adicione itens no cardápio para finalizar seu pedido.
+            Adicione itens no cardápio para poder finalizar sua compra.
           </p>
-          <Link
-            href="/"
-            className="btn-accent mt-6 inline-block rounded-xl px-6 py-3.5 font-bold text-white transition hover:brightness-110"
-          >
-            Ver cardápio
-          </Link>
+          <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row sm:justify-center">
+            <Link
+              href="/"
+              className="btn-accent inline-block rounded-xl px-6 py-3.5 font-bold text-white transition hover:brightness-110"
+            >
+              Adicionar mais itens
+            </Link>
+            <span className="inline-block rounded-xl border-2 border-[var(--border-strong)] px-4 py-2.5 text-xs font-semibold uppercase tracking-wide text-[var(--muted)]">
+              Finalizar compra disponível após adicionar itens
+            </span>
+          </div>
         </div>
       </div>
     );

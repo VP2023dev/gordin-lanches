@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Manual — Cardápio Online Gordin Lanches</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; max-width: 700px; margin: 0 auto; padding: 2rem; color: #1a1208; line-height: 1.6; }
+    h1 { font-size: 1.75rem; border-bottom: 3px solid #e85d04; padding-bottom: 0.5rem; margin-top: 0; }
+    h2 { font-size: 1.25rem; color: #3d2e1a; margin-top: 2rem; }
+    h3 { font-size: 1.1rem; color: #5c4a32; margin-top: 1.25rem; }
+    p.subtitle { color: #6b5b4f; font-style: italic; margin-top: 0.25rem; }
+    hr { border: none; border-top: 1px solid #e0c9b0; margin: 1.5rem 0; }
+    ul { padding-left: 1.5rem; }
+    li { margin: 0.35rem 0; }
+    strong { color: #1a1208; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.9rem; }
+    th, td { border: 1px solid #e0c9b0; padding: 0.5rem 0.75rem; text-align: left; }
+    th { background: #fff4ed; font-weight: 600; }
+    .footer { margin-top: 2rem; font-size: 0.85rem; color: #6b5b4f; }
+    @media print { body { padding: 1rem; } }
+  </style>
+</head>
+<body>
+  <h1>Cardápio Online — Gordin Lanches</h1>
+  <p class="subtitle">Documentação do sistema — O que o sistema faz e como usar</p>
+
+  <hr>
+  <h2>O que é o sistema</h2>
+  <p>É um <strong>cardápio digital</strong> para o seu estabelecimento. O cliente acessa pelo celular ou computador, monta o pedido no carrinho e envia direto pelo <strong>WhatsApp</strong> para você. Você ainda tem um <strong>painel administrativo</strong> para alterar cardápio, ver pedidos e avaliações.</p>
+
+  <hr>
+  <h2>Para o cliente (quem compra)</h2>
+
+  <h3>1. Cardápio</h3>
+  <ul>
+    <li>Ver <strong>todos os produtos</strong> organizados por categoria (Lanches, Bebidas, Comida Japonesa etc.).</li>
+    <li>Ver <strong>foto</strong>, <strong>nome</strong>, <strong>descrição</strong>, <strong>ingredientes</strong> e <strong>preço</strong> de cada item.</li>
+    <li><strong>Buscar</strong> por nome ou ingrediente (ex.: "bacon", "sushi").</li>
+    <li><strong>Filtrar</strong> por categoria (botões: Todos, Lanches, Bebidas, etc.).</li>
+    <li>Seção de <strong>Combos</strong> com preço único e itens que compõem o combo.</li>
+    <li>Seção <strong>Promoções do Dia</strong> em destaque no topo.</li>
+  </ul>
+
+  <h3>2. Carrinho</h3>
+  <ul>
+    <li><strong>Adicionar</strong> itens com quantidade.</li>
+    <li>Em produtos que têm <strong>acréscimos</strong> (bacon, queijo extra etc.), ao clicar em "Adicionar" abre uma tela para escolher quantidade e acréscimos.</li>
+    <li><strong>Ir para o carrinho</strong> pelo botão no topo (mostra quantidade de itens).</li>
+  </ul>
+
+  <h3>3. Finalizar pedido</h3>
+  <ul>
+    <li>Informar <strong>nome</strong> (para você identificar o pedido).</li>
+    <li>Escolher <strong>retirada</strong> ou <strong>entrega</strong> (com endereço).</li>
+    <li>Escolher <strong>forma de pagamento</strong> (Dinheiro, PIX, Cartão).</li>
+    <li>Para cada item, opção de <strong>observação</strong> (ex.: "sem cebola", "ponto da carne assim").</li>
+    <li>Ver <strong>resumo</strong> e <strong>total</strong> (com valor de entrega, se houver).</li>
+    <li>Ao finalizar, o sistema:
+      <ul>
+        <li><strong>Registra o pedido</strong> com um <strong>número</strong> (ex.: #042).</li>
+        <li><strong>Abre o WhatsApp</strong> com a mensagem pronta (itens, nome, endereço, total).</li>
+        <li>Mostra na tela <strong>"Seu pedido é o #042"</strong> para o cliente anotar.</li>
+      </ul>
+    </li>
+    <li>Depois de enviar, o cliente pode clicar em <strong>"Avalie sua experiência"</strong> (estrelas e comentário opcional).</li>
+  </ul>
+
+  <h3>4. Outros</h3>
+  <ul>
+    <li><strong>Aberto/Fechado:</strong> no topo aparece se o estabelecimento está "Aberto" ou "Fechado" conforme o horário que você configurar; quando fechado, o botão de pedido fica desabilitado.</li>
+    <li><strong>Logo</strong> da loja ao lado do nome no topo (se configurada).</li>
+  </ul>
+
+  <hr>
+  <h2>Para você (dono) — Painel Administrativo</h2>
+  <p>Acesso por <strong>senha</strong>. No painel você altera tudo que aparece no cardápio e vê pedidos e avaliações.</p>
+
+  <h3>1. Configurações</h3>
+  <ul>
+    <li><strong>Nome</strong> da loja.</li>
+    <li><strong>WhatsApp</strong> (número para onde os pedidos são enviados).</li>
+    <li><strong>Endereço</strong> (exibido no site se quiser).</li>
+    <li><strong>Horário</strong> em texto (ex.: "Seg a Dom: 11h às 23h").</li>
+    <li><strong>Abertura e Fechamento</strong> (horas) para o sistema mostrar "Aberto" ou "Fechado" e desabilitar o botão de pedido quando fechado.</li>
+    <li><strong>Logo</strong> da loja (upload de imagem).</li>
+  </ul>
+
+  <h3>2. Categorias</h3>
+  <ul>
+    <li>Criar, editar e excluir <strong>categorias</strong> (ex.: Lanches, Bebidas, Comida Japonesa).</li>
+    <li>Definir <strong>ordem</strong> de exibição.</li>
+    <li>Escolher <strong>seção</strong>: "Lanches" ou "Comida Japonesa" (agrupa no cardápio).</li>
+  </ul>
+
+  <h3>3. Produtos</h3>
+  <ul>
+    <li>Produtos organizados <strong>por categoria</strong>.</li>
+    <li>Em cada categoria: <strong>+ Novo nesta categoria</strong>.</li>
+    <li>Por produto: nome, preço, categoria, descrição, ingredientes, foto, disponível, destaque.</li>
+    <li><strong>Upload de foto</strong> por produto.</li>
+    <li><strong>Excluir</strong> produto.</li>
+  </ul>
+
+  <h3>4. Acréscimos</h3>
+  <ul>
+    <li>Cadastrar <strong>extras</strong> (ex.: Bacon, Queijo extra, Ovo) com preço e ordem.</li>
+    <li>Aparecem quando o cliente clica em "Adicionar" em produtos que usam acréscimos.</li>
+  </ul>
+
+  <h3>5. Promoções do Dia</h3>
+  <ul>
+    <li>Criar <strong>promoções</strong> com título, descrição, preço promocional e imagem.</li>
+    <li>Aparecem em destaque no topo do cardápio.</li>
+  </ul>
+
+  <h3>6. Combos</h3>
+  <ul>
+    <li>Criar <strong>combos</strong> com nome, preço único e lista de produtos (e quantidade de cada um).</li>
+    <li>Ex.: "Combo X-Tudo + Batata + Refri" com preço único.</li>
+  </ul>
+
+  <h3>7. Pedidos</h3>
+  <ul>
+    <li>Lista de <strong>pedidos registrados</strong> (número, data/hora, cliente, itens, total, entrega ou retirada).</li>
+    <li>Filtro <strong>"Só hoje"</strong> para ver apenas os pedidos do dia.</li>
+    <li>Cada pedido tem um <strong>número</strong> (ex.: #042) para você identificar no WhatsApp.</li>
+  </ul>
+
+  <h3>8. Avaliações</h3>
+  <ul>
+    <li>Ver <strong>avaliações</strong> dos clientes (estrelas e comentário opcional) feitas após "Pedido enviado".</li>
+  </ul>
+
+  <hr>
+  <h2>Resumo das funções</h2>
+  <table>
+    <thead>
+      <tr><th>Onde</th><th>Função</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Cardápio (cliente)</strong></td>
+        <td>Ver produtos por categoria, buscar, filtrar, combos, promoções, carrinho, acréscimos, observações por item, nome do cliente, entrega/retirada, forma de pagamento, envio por WhatsApp, número do pedido, link para avaliar.</td>
+      </tr>
+      <tr>
+        <td><strong>Painel (dono)</strong></td>
+        <td>Configurações (nome, WhatsApp, endereço, horário, aberto/fechado, logo), categorias, produtos por categoria, acréscimos, promoções, combos, lista de pedidos (com número), avaliações.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <hr>
+  <h2>Acesso</h2>
+  <ul>
+    <li><strong>Cardápio (público):</strong> [link do seu site]</li>
+    <li><strong>Painel do dono:</strong> [link do seu site]/admin — Senha definida na instalação; guarde com segurança.</li>
+  </ul>
+
+  <hr>
+  <h2>Observações técnicas (para o desenvolvedor)</h2>
+  <ul>
+    <li>Front: Next.js (React).</li>
+    <li>Banco de dados e armazenamento de imagens: Supabase.</li>
+    <li>Hospedagem: Vercel (ou outra).</li>
+    <li>Pedidos são enviados pelo WhatsApp; o sistema só registra um resumo (número, itens, total) para você organizar no painel.</li>
+  </ul>
+
+  <p class="footer">Documento gerado para o cliente Gordin Lanches. Atualize os links antes de enviar.</p>
+
+  <script>
+    // Instrução para gerar PDF: abra este arquivo no navegador e use Ctrl+P (ou Cmd+P) > Destino: Salvar como PDF
+    console.log('Para gerar PDF: Ctrl+P (ou Cmd+P) > Salvar como PDF');
+  </script>
+</body>
+</html>

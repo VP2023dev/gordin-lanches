@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { PromocoesDia } from "./PromocoesDia";
 import { CategoriaSection } from "./CategoriaSection";
 import { useCart } from "@/context/CartContext";
@@ -23,7 +24,7 @@ export function CardapioClient({
   acrescimos = [],
   combos = [],
 }: CardapioClientProps) {
-  const { addCombo } = useCart();
+  const { addCombo, totalItens, totalPreco } = useCart();
   const [busca, setBusca] = useState("");
   const [categoriaFiltro, setCategoriaFiltro] = useState<string | null>(null);
 
@@ -171,6 +172,28 @@ export function CardapioClient({
           </section>
         )}
       </main>
+
+      {/* CTA fixo: Ver carrinho (mobile) */}
+      {totalItens > 0 && (
+        <div className="fixed inset-x-0 bottom-0 z-40 border-t border-[var(--border-strong)] bg-[var(--card-bg)]/98 px-4 py-3 shadow-[var(--shadow)] backdrop-blur-md sm:hidden">
+          <div className="mx-auto flex max-w-4xl items-center justify-between gap-3">
+            <div className="min-w-0">
+              <p className="text-xs font-semibold uppercase tracking-wide text-[var(--muted)]">
+                Você tem {totalItens} {totalItens === 1 ? "item" : "itens"} no carrinho
+              </p>
+              <p className="text-sm font-extrabold text-[var(--accent)]">
+                Total: {formatPrice(totalPreco)}
+              </p>
+            </div>
+            <Link
+              href="/finalizar-pedido"
+              className="btn-accent rounded-xl px-4 py-2.5 text-xs font-bold uppercase tracking-wide text-white shadow-md transition hover:brightness-110"
+            >
+              Ver carrinho
+            </Link>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

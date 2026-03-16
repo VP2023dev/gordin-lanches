@@ -14,6 +14,7 @@ export function AdminPainel({ onSair }: AdminPainelProps) {
   const [aba, setAba] = useState<"config" | "categorias" | "produtos" | "acrescimos" | "promocoes" | "pedidos" | "combos" | "avaliacoes">("config");
 
   const [erro, setErro] = useState<string | null>(null);
+  const [toast, setToast] = useState<string | null>(null);
 
   const carregar = async () => {
     setErro(null);
@@ -52,11 +53,13 @@ export function AdminPainel({ onSair }: AdminPainelProps) {
           const key = tipo === "config" ? "config" : tipo;
           return { ...prev, [key]: dados as CardapioData[keyof CardapioData] };
         });
-        alert("Salvo!");
+        setToast("Salvo com sucesso.");
+        setTimeout(() => setToast(null), 2500);
       }
     } else {
       const err = await res.json().catch(() => ({}));
-      alert(err.error || "Erro ao salvar");
+      setToast(err.error || "Erro ao salvar");
+      setTimeout(() => setToast(null), 3000);
     }
   };
 
@@ -218,6 +221,12 @@ export function AdminPainel({ onSair }: AdminPainelProps) {
         )}
         {aba === "avaliacoes" && <AdminAvaliacoes />}
       </main>
+
+      {toast && (
+        <div className="fixed bottom-4 right-4 z-50 max-w-xs rounded-xl bg-slate-900/90 px-4 py-3 text-sm font-medium text-slate-50 shadow-lg">
+          {toast}
+        </div>
+      )}
     </div>
   );
 }
