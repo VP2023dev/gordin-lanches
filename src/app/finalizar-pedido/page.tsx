@@ -12,12 +12,22 @@ const FORMAS_PAGAMENTO = [
   { id: "cartao", label: "Cartão (débito/crédito)" },
 ] as const;
 
+function stripePixCheckoutHabilitado() {
+  const raw = process.env.NEXT_PUBLIC_STRIPE_PIX;
+  if (raw == null || String(raw).trim() === "") return false;
+  const v = String(raw).toLowerCase().trim();
+  return v === "1" || v === "true" || v === "yes";
+}
+
 export default function FinalizarPedidoPage() {
   const { itens, removeItem, updateQuantity, updateObservation, totalPreco, clearCart } = useCart();
   const [config, setConfig] = useState<{ nome: string; whatsapp: string } | null>(null);
   const [nomeCliente, setNomeCliente] = useState("");
   const [tipoEntrega, setTipoEntrega] = useState<"entrega" | "retirada">("retirada");
   const [formaPagamento, setFormaPagamento] = useState<string>("dinheiro");
+  const [mostrarCancelamentoPix, setMostrarCancelamentoPix] = useState(false);
+  const [erroStripe, setErroStripe] = useState<string | null>(null);
+  const [indoParaStripe, setIndoParaStripe] = useState(false);
   const [endereco, setEndereco] = useState({
     rua: "",
     bairro: "",
@@ -36,6 +46,15 @@ export default function FinalizarPedidoPage() {
       );
   }, []);
 
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const sp = new URLSearchParams(window.location.search);
+    if (sp.get("cancelado") === "pix") {
+      setMostrarCancelamentoPix(true);
+      window.history.replaceState({}, "", window.location.pathname);
+    }
+  }, []);
+
   const totalEntrega = tipoEntrega === "entrega" ? CUSTO_ENTREGA : 0;
   const totalGeral = totalPreco + totalEntrega;
 
@@ -46,6 +65,7 @@ export default function FinalizarPedidoPage() {
 
   const handleFinalizar = async () => {
     if (!config || !podeFinalizar) return;
+    setErroStripe(null);
 
     const resumoItens = itens.map((i) => {
       const valorLinha = totalItemLinha(i);
@@ -119,8 +139,47 @@ export default function FinalizarPedidoPage() {
     linhas.push(`*Total: R$ ${totalGeral.toFixed(2)}*`);
 
     const msg = encodeURIComponent(linhas.join("\n"));
-    const url = `https://wa.me/${config.whatsapp.replace(/\D/g, "")}?text=${msg}`;
-    window.open(url, "_blank");
+    const waUrl = `https://wa.me/${config.whatsapp.replace(/\D/g, "")}?text=${msg}`;
+
+    const usarStripePix =
+      formaPagamento === "pix" && stripePixCheckoutHabilitado() && totalGeral >= 0.5;
+
+    if (usarStripePix) {
+      setIndoParaStripe(true);
+      try {
+        const stripeRes = await fetch("/api/stripe/checkout-session", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            amountReais: totalGeral,
+            pedidoNumero: numero,
+            nomeLoja: config.nome,
+          }),
+        });
+        const stripeData = (await stripeRes.json()) as { url?: string; error?: string };
+        if (stripeRes.ok && stripeData?.url) {
+          try {
+            sessionStorage.setItem("pix_wa_url", waUrl);
+            sessionStorage.setItem("pix_pedido_numero", numero != null ? String(numero) : "");
+          } catch {
+            /* sessionStorage indisponível */
+          }
+          window.location.href = stripeData.url;
+          return;
+        }
+        setErroStripe(
+          stripeData?.error ||
+            "Não foi possível abrir o pagamento PIX. Verifique STRIPE_SECRET_KEY e NEXT_PUBLIC_BASE_URL."
+        );
+      } catch {
+        setErroStripe("Erro de rede ao iniciar o PIX. Tente de novo ou use outra forma de pagamento.");
+      } finally {
+        setIndoParaStripe(false);
+      }
+      return;
+    }
+
+    window.open(waUrl, "_blank");
     clearCart();
     setNumeroPedido(numero);
     setEnviado(true);
@@ -201,6 +260,29 @@ export default function FinalizarPedidoPage() {
       <h1 className="mb-6 text-2xl font-extrabold text-[var(--foreground)]">
         Finalizar pedido
       </h1>
+
+      {mostrarCancelamentoPix && (
+        <div
+          className="mb-6 rounded-xl border border-amber-500/40 bg-amber-500/10 px-4 py-3 text-sm text-[var(--foreground)]"
+          role="status"
+        >
+          Pagamento PIX cancelado na página da Stripe. Seus itens continuam no carrinho.
+        </div>
+      )}
+
+      {stripePixCheckoutHabilitado() && formaPagamento === "pix" && (
+        <div className="mb-6 rounded-xl border border-[var(--accent)]/30 bg-[var(--accent-soft)]/50 px-4 py-3 text-sm text-[var(--foreground)]">
+          Com PIX selecionado, ao finalizar você será enviado à página segura da Stripe para ver o{" "}
+          <strong>QR Code</strong> ou o código copia e cola. Depois do pagamento, abra o WhatsApp com
+          o pedido na tela seguinte.
+        </div>
+      )}
+
+      {erroStripe && (
+        <div className="mb-6 rounded-xl border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-800 dark:text-red-200">
+          {erroStripe}
+        </div>
+      )}
 
       {/* Nome do cliente */}
       <section className="card-lift mb-8 rounded-2xl border-2 border-[var(--card-border)] bg-[var(--card-bg)] p-5 shadow-[var(--shadow)]">
@@ -411,11 +493,15 @@ export default function FinalizarPedidoPage() {
         <button
           type="button"
           onClick={handleFinalizar}
-          disabled={!podeFinalizar}
+          disabled={!podeFinalizar || indoParaStripe}
           className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-b from-[#25d366] to-[#20bd5a] py-4 text-lg font-bold text-white shadow-lg transition hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-50 disabled:grayscale"
         >
           <WhatsAppIcon />
-          Finalizar pedido no WhatsApp
+          {indoParaStripe
+            ? "Abrindo pagamento PIX…"
+            : stripePixCheckoutHabilitado() && formaPagamento === "pix"
+              ? "Continuar: PIX (Stripe) e pedido"
+              : "Finalizar pedido no WhatsApp"}
         </button>
       </div>
     </div>
