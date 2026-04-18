@@ -1,6 +1,59 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+
+const STORAGE_SOM = "admin_producao_som";
+const STORAGE_VISTOS = "admin_producao_ids_recebido_vistos";
+
+function playPedidoChime() {
+  if (typeof window === "undefined") return;
+  try {
+    const w = window as unknown as {
+      AudioContext: typeof AudioContext;
+      webkitAudioContext?: typeof AudioContext;
+    };
+    const Ctor = w.AudioContext || w.webkitAudioContext;
+    if (!Ctor) return;
+    const ctx = new Ctor();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = "sine";
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    gain.gain.setValueAtTime(0.0001, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.11, ctx.currentTime + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.28);
+    osc.frequency.setValueAtTime(740, ctx.currentTime);
+    osc.frequency.setValueAtTime(990, ctx.currentTime + 0.07);
+    osc.frequency.exponentialRampToValueAtTime(620, ctx.currentTime + 0.22);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + 0.3);
+    void ctx.resume();
+  } catch {
+    /* autoplay bloqueado ou áudio indisponível */
+  }
+}
+
+function carregarIdsVistos(): Set<string> {
+  try {
+    const raw = sessionStorage.getItem(STORAGE_VISTOS);
+    if (raw) {
+      const arr = JSON.parse(raw) as unknown;
+      if (Array.isArray(arr)) return new Set(arr.filter((x) => typeof x === "string"));
+    }
+  } catch {
+    /* ignore */
+  }
+  return new Set();
+}
+
+function salvarIdsVistos(set: Set<string>) {
+  try {
+    sessionStorage.setItem(STORAGE_VISTOS, JSON.stringify([...set]));
+  } catch {
+    /* ignore */
+  }
+}
 
 export type PedidoProducao = {
   id: string;
@@ -14,6 +67,24 @@ export type PedidoProducao = {
   endereco: string | null;
   statusProducao?: string;
 };
+
+function notificarNovosPedidos(pedidosNovos: PedidoProducao[]) {
+  if (typeof window === "undefined" || typeof Notification === "undefined") return;
+  if (Notification.permission !== "granted") return;
+  for (const p of pedidosNovos.slice(0, 4)) {
+    const num = p.numero != null ? `#${String(p.numero).padStart(3, "0")}` : "Pedido";
+    const preco = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(Number(p.total));
+    try {
+      new Notification("Novo pedido — cozinha", {
+        body: `${num} · ${p.nomeCliente || "Cliente"} · ${preco}`,
+        tag: `pedido-${p.id}`,
+        silent: true,
+      });
+    } catch {
+      /* ignore */
+    }
+  }
+}
 
 const COLUNAS = [
   { key: "recebido" as const, titulo: "Novos", subtitulo: "Aguardando preparo", cor: "from-amber-500 to-orange-600", borda: "border-amber-200/80" },
@@ -50,6 +121,49 @@ export function AdminProducao({ onMensagem }: { onMensagem: (msg: string) => voi
   const [loading, setLoading] = useState(true);
   const [autoRefresh, setAutoRefresh] = useState(true);
   const [atualizandoId, setAtualizandoId] = useState<string | null>(null);
+  const [somAtivo, setSomAtivo] = useState(true);
+  const [notifEstado, setNotifEstado] = useState<NotificationPermission | "unsupported">("default");
+  const bootRecebidoFeito = useRef(false);
+  const onMensagemRef = useRef(onMensagem);
+  onMensagemRef.current = onMensagem;
+
+  useEffect(() => {
+    try {
+      const v = localStorage.getItem(STORAGE_SOM);
+      if (v === "0") setSomAtivo(false);
+    } catch {
+      /* ignore */
+    }
+    if (typeof Notification !== "undefined") {
+      setNotifEstado(Notification.permission);
+    } else {
+      setNotifEstado("unsupported");
+    }
+  }, []);
+
+  const definirSom = (ativo: boolean) => {
+    setSomAtivo(ativo);
+    try {
+      localStorage.setItem(STORAGE_SOM, ativo ? "1" : "0");
+    } catch {
+      /* ignore */
+    }
+  };
+
+  const solicitarNotificacoes = async () => {
+    if (typeof Notification === "undefined") {
+      onMensagem("Este navegador não suporta notificações.");
+      return;
+    }
+    try {
+      const r = await Notification.requestPermission();
+      setNotifEstado(r);
+      if (r === "granted") onMensagem("Alertas do navegador ativados.");
+      else onMensagem("Notificações não autorizadas — o som ao vivo continua disponível.");
+    } catch {
+      onMensagem("Não foi possível pedir permissão de notificação.");
+    }
+  };
 
   const carregar = useCallback(async () => {
     setLoading(true);
@@ -76,6 +190,29 @@ export function AdminProducao({ onMensagem }: { onMensagem: (msg: string) => voi
     const id = window.setInterval(() => void carregar(), 22000);
     return () => window.clearInterval(id);
   }, [autoRefresh, carregar]);
+
+  useEffect(() => {
+    if (loading) return;
+    const recebidos = pedidos.filter((p) => statusNorm(p.statusProducao) === "recebido");
+    const vistos = carregarIdsVistos();
+
+    if (!bootRecebidoFeito.current) {
+      bootRecebidoFeito.current = true;
+      for (const p of recebidos) vistos.add(p.id);
+      salvarIdsVistos(vistos);
+      return;
+    }
+
+    const novos = recebidos.filter((p) => !vistos.has(p.id));
+    if (novos.length === 0) return;
+
+    for (const p of novos) vistos.add(p.id);
+    salvarIdsVistos(vistos);
+
+    if (somAtivo) playPedidoChime();
+    notificarNovosPedidos(novos);
+    onMensagemRef.current(`Novo pedido na fila (${novos.length})`);
+  }, [pedidos, loading, somAtivo]);
 
   const patchStatus = async (id: string, status_producao: string) => {
     const token = typeof window !== "undefined" ? sessionStorage.getItem("admin_token") : null;
@@ -119,23 +256,55 @@ export function AdminProducao({ onMensagem }: { onMensagem: (msg: string) => voi
               Acompanhe os pedidos de <strong>hoje</strong> do recebimento ao pronto. Atualize o status conforme a cozinha avança.
             </p>
           </div>
-          <div className="flex flex-wrap items-center gap-3">
-            <label className="flex cursor-pointer items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm">
-              <input
-                type="checkbox"
-                checked={autoRefresh}
-                onChange={(e) => setAutoRefresh(e.target.checked)}
-                className="h-4 w-4 rounded border-slate-300 text-orange-500 focus:ring-orange-400"
-              />
-              Atualizar sozinho (~22s)
-            </label>
-            <button
-              type="button"
-              onClick={() => void carregar()}
-              className="rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white shadow-md transition hover:bg-slate-800"
-            >
-              Atualizar agora
-            </button>
+          <div className="flex flex-col gap-3 sm:items-end">
+            <div className="flex flex-wrap items-center justify-end gap-2">
+              <label className="flex cursor-pointer items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm">
+                <input
+                  type="checkbox"
+                  checked={somAtivo}
+                  onChange={(e) => definirSom(e.target.checked)}
+                  className="h-4 w-4 rounded border-slate-300 text-orange-500 focus:ring-orange-400"
+                />
+                Som em novo pedido
+              </label>
+              {notifEstado !== "unsupported" && notifEstado !== "granted" && (
+                <button
+                  type="button"
+                  onClick={() => void solicitarNotificacoes()}
+                  className="rounded-xl border border-sky-300 bg-sky-50 px-3 py-2 text-sm font-semibold text-sky-900 shadow-sm transition hover:bg-sky-100"
+                >
+                  Ativar alertas do navegador
+                </button>
+              )}
+              {notifEstado === "granted" && (
+                <span className="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-semibold text-emerald-800">
+                  Notificações ativas
+                </span>
+              )}
+              {notifEstado === "denied" && (
+                <span className="rounded-xl border border-slate-200 bg-slate-100 px-3 py-2 text-xs text-slate-600">
+                  Notificações bloqueadas no navegador
+                </span>
+              )}
+            </div>
+            <div className="flex flex-wrap items-center gap-3">
+              <label className="flex cursor-pointer items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm">
+                <input
+                  type="checkbox"
+                  checked={autoRefresh}
+                  onChange={(e) => setAutoRefresh(e.target.checked)}
+                  className="h-4 w-4 rounded border-slate-300 text-orange-500 focus:ring-orange-400"
+                />
+                Atualizar sozinho (~22s)
+              </label>
+              <button
+                type="button"
+                onClick={() => void carregar()}
+                className="rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white shadow-md transition hover:bg-slate-800"
+              >
+                Atualizar agora
+              </button>
+            </div>
           </div>
         </div>
 
