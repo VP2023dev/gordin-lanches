@@ -13,21 +13,18 @@ export function PromocoesDia({ promocoes }: PromocoesDiaProps) {
   if (promocoesAtivas.length === 0) return null;
 
   return (
-    <section className="border-b-2 border-[var(--border-strong)] bg-gradient-to-r from-[var(--accent-soft)] via-[var(--gold-soft)] to-[var(--accent-soft)] px-4 py-6">
-      <div className="mb-4 flex items-center gap-3">
-        <span className="text-3xl drop-shadow-sm" aria-hidden>🔥</span>
-        <h2 className="text-xl font-extrabold text-[var(--foreground)] sm:text-2xl tracking-tight">
-          Promoções do Dia
-        </h2>
+    <section className="border-b border-[var(--border)] bg-[var(--card-bg)] px-4 py-5">
+      <div className="mb-3 flex items-center gap-2">
+        <h2 className="text-lg font-semibold text-[var(--foreground)] sm:text-xl">Promoções do dia</h2>
       </div>
-      <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
+      <div className="flex gap-3 overflow-x-auto pb-1 scrollbar-hide">
         {promocoesAtivas.map((promo) => (
           <div
             key={promo.id}
-            className="card-lift flex min-w-[280px] shrink-0 overflow-hidden rounded-2xl border-2 border-[var(--card-border)] bg-[var(--card-bg)] shadow-[var(--shadow)] transition hover:shadow-[var(--shadow-hover)] hover:border-[var(--accent)]/40"
+            className="flex min-w-[260px] shrink-0 overflow-hidden rounded-xl border border-[var(--card-border)] bg-[var(--card-bg)] shadow-[var(--shadow-card)] transition hover:shadow-[var(--shadow-hover)]"
           >
             {promo.imagem ? (
-              <div className="relative h-28 w-28 shrink-0 overflow-hidden">
+              <div className="relative h-24 w-24 shrink-0 overflow-hidden bg-neutral-100">
                 <img
                   src={promo.imagem}
                   alt={promo.titulo}
@@ -35,19 +32,19 @@ export function PromocoesDia({ promocoes }: PromocoesDiaProps) {
                 />
               </div>
             ) : (
-              <div className="flex h-28 w-28 shrink-0 items-center justify-center bg-gradient-to-br from-[var(--accent-soft)] to-[var(--gold-soft)] text-4xl">
-                🎉
+              <div className="flex h-24 w-24 shrink-0 items-center justify-center bg-neutral-100 text-xs font-semibold uppercase tracking-wide text-neutral-400">
+                Promo
               </div>
             )}
-            <div className="flex flex-1 flex-col justify-center p-4">
-              <h3 className="font-bold text-[var(--foreground)] text-base">
+            <div className="flex min-w-0 flex-1 flex-col justify-center p-3">
+              <h3 className="font-semibold text-[var(--foreground)] text-sm leading-snug">
                 {promo.titulo}
               </h3>
-              <p className="line-clamp-2 text-sm text-[var(--muted)] mt-0.5">
+              <p className="line-clamp-2 text-xs text-[var(--muted)] mt-0.5">
                 {promo.descricao}
               </p>
               {promo.precoPromocional !== undefined && (
-                <p className="mt-2 inline-flex w-fit rounded-lg bg-[var(--accent-soft)] px-2.5 py-1 text-lg font-extrabold text-[var(--accent)]">
+                <p className="mt-2 text-base font-bold text-[var(--accent)] tabular-nums">
                   {formatPrice(promo.precoPromocional)}
                 </p>
               )}

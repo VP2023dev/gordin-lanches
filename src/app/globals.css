@@ -1,35 +1,33 @@
 @import "tailwindcss";
 
 :root {
-  /* Fundo: gradiente quente e acolhedor */
-  --background: #fff8f0;
-  --background-end: #ffefe0;
-  --foreground: #1a1208;
-  --foreground-soft: #3d2e1a;
+  /* Fundo neutro (estilo app de delivery — leve, sem “grito”) */
+  --background: #f5f5f5;
+  --background-end: #f0f0f0;
+  --foreground: #1a1a1a;
+  --foreground-soft: #3f3f3f;
 
-  /* Cards: branco quente com sombra marcada */
+  /* Cards brancos, borda cinza suave */
   --card-bg: #ffffff;
-  --card-border: #f0e6dc;
+  --card-border: #ebebeb;
 
-  /* Destaque principal: laranja vivo (apetitoso, chamativo) */
-  --accent: #e85d04;
-  --accent-hover: #d44d00;
-  --accent-soft: #fff4ed;
-  --accent-glow: rgba(232, 93, 4, 0.35);
+  /* Laranja da marca — um tom mais contido */
+  --accent: #ea580c;
+  --accent-hover: #c2410c;
+  --accent-soft: #fff7ed;
+  --accent-glow: rgba(234, 88, 12, 0.12);
 
-  /* Secundário: dourado para destaques */
-  --gold: #d97706;
-  --gold-soft: #fef3c7;
+  --gold: #ca8a04;
+  --gold-soft: #fef9c3;
 
-  /* Texto e bordas */
-  --muted: #6b5b4f;
-  --border: #ecd9c8;
-  --border-strong: #e0c9b0;
+  --muted: #717171;
+  --border: #e8e8e8;
+  --border-strong: #dedede;
 
-  /* Sombras mais presentes e quentes */
-  --shadow: 0 4px 20px rgba(26, 18, 8, 0.08), 0 2px 8px rgba(232, 93, 4, 0.06);
-  --shadow-hover: 0 12px 36px rgba(26, 18, 8, 0.12), 0 4px 16px rgba(232, 93, 4, 0.1);
-  --shadow-card: 0 2px 12px rgba(26, 18, 8, 0.06);
+  /* Sombras discretas (tipo lista de restaurante) */
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  --shadow-hover: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.04);
 }
 
 @theme inline {
@@ -44,19 +42,16 @@
 }
 
 body {
-  background: linear-gradient(180deg, var(--background) 0%, var(--background-end) 50%, var(--background) 100%);
-  background-attachment: fixed;
+  background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-sans), system-ui, sans-serif;
+  font-family: var(--font-sans), system-ui, -apple-system, "Segoe UI", sans-serif;
   min-height: 100vh;
 }
 
-/* Scroll suave */
 html {
   scroll-behavior: smooth;
 }
 
-/* Esconder scrollbar mas manter scroll */
 .scrollbar-hide {
   -ms-overflow-style: none;
   scrollbar-width: none;
@@ -65,13 +60,14 @@ html {
   display: none;
 }
 
-/* Botão de destaque com brilho sutil */
+/* Botão principal: sólido + sombra leve (menos “neon”) */
 .btn-accent {
-  background: linear-gradient(180deg, var(--accent) 0%, var(--accent-hover) 100%);
-  box-shadow: 0 4px 14px var(--accent-glow);
+  background: var(--accent);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
 }
 .btn-accent:hover {
-  box-shadow: 0 6px 20px var(--accent-glow);
+  background: var(--accent-hover);
+  box-shadow: 0 2px 8px var(--accent-glow);
 }
 
 /* ========== Painel Admin ========== */
@@ -91,32 +87,29 @@ html {
   --admin-danger: #dc2626;
 }
 
-/* Card com elevação suave */
 .card-lift {
   box-shadow: var(--shadow-card);
   transition: box-shadow 0.2s ease, transform 0.2s ease;
 }
 .card-lift:hover {
-  box-shadow: var(--shadow);
+  box-shadow: var(--shadow-hover);
 }
 
-/* Cardápio: card de produto com hover suave */
 .cardapio-card {
-  transition: background-color 0.2s ease, box-shadow 0.2s ease;
+  transition: box-shadow 0.2s ease;
 }
 .cardapio-card:active {
-  transform: scale(0.99);
+  transform: scale(0.995);
 }
 
 .cardapio-card-produto {
-  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.2s ease;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
-/* Imagem do produto com zoom sutil no hover */
 .cardapio-card-img {
   transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .cardapio-card:hover .cardapio-card-img,
 .cardapio-card-produto:hover .cardapio-card-img {
-  transform: scale(1.05);
+  transform: scale(1.02);
 }

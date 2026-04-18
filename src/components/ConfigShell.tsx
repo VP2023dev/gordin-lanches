@@ -32,10 +32,10 @@ export function ConfigShell({ children }: { children: React.ReactNode }) {
   if (!config) {
     return (
       <div className="min-h-screen">
-        <div className="flex h-14 items-center justify-between border-b-2 border-[var(--border-strong)] bg-[var(--card-bg)] px-4">
+        <div className="flex h-14 items-center justify-between border-b border-[var(--border)] bg-[var(--card-bg)] px-4">
           <div className="h-6 w-32 animate-pulse rounded-lg bg-[var(--border)]" />
         </div>
-        <main className="mx-auto max-w-4xl px-4 py-6 space-y-4">
+        <main className="mx-auto max-w-5xl px-4 py-6 space-y-4">
           <div className="h-6 w-40 animate-pulse rounded-lg bg-[var(--border)]" />
           <div className="space-y-3">
             <div className="h-24 animate-pulse rounded-2xl bg-[var(--border)]/60" />

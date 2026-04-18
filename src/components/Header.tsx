@@ -19,8 +19,8 @@ export function Header({ nome, whatsapp, logoUrl, horaAbertura, horaFechamento }
   const mostraStatus = horaAbertura?.trim() && horaFechamento?.trim();
 
   return (
-    <header className="sticky top-0 z-50 border-b-2 border-[var(--border-strong)] bg-[var(--card-bg)]/98 shadow-[var(--shadow)] backdrop-blur-md">
-      <div className="mx-auto flex max-w-4xl items-center justify-between gap-4 px-4 py-3.5">
+    <header className="sticky top-0 z-50 border-b border-[var(--border)] bg-[var(--card-bg)]/95 shadow-[var(--shadow-card)] backdrop-blur-md">
+      <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-3">
         <div className="flex items-center gap-3">
           <Link
             href="/"
@@ -33,11 +33,11 @@ export function Header({ nome, whatsapp, logoUrl, horaAbertura, horaFechamento }
                 className="h-11 w-11 shrink-0 rounded-xl object-cover shadow-md sm:h-12 sm:w-12"
               />
             ) : (
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-[var(--accent)] to-[var(--accent-hover)] text-xl shadow-lg sm:h-12 sm:w-12">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-[var(--accent)] text-lg text-white sm:h-12 sm:w-12">
                 🍔
               </div>
             )}
-            <span className="text-xl font-extrabold tracking-tight text-[var(--foreground)] sm:text-2xl">
+            <span className="text-lg font-semibold tracking-tight text-[var(--foreground)] sm:text-xl">
               {nome}
             </span>
           </Link>
@@ -56,12 +56,12 @@ export function Header({ nome, whatsapp, logoUrl, horaAbertura, horaFechamento }
         <div className="flex items-center gap-2">
           <Link
             href="/finalizar-pedido"
-            className="relative flex items-center gap-2 rounded-xl border-2 border-[var(--border-strong)] bg-[var(--background)] px-3 py-2.5 text-sm font-semibold text-[var(--foreground-soft)] transition hover:border-[var(--accent)]/40 hover:bg-[var(--accent-soft)] hover:text-[var(--foreground)]"
+            className="relative flex items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--card-bg)] px-3 py-2 text-sm font-medium text-[var(--foreground-soft)] transition hover:border-[var(--border-strong)] hover:bg-neutral-50"
           >
             <CartIcon />
             <span className="hidden sm:inline">Carrinho</span>
             {totalItens > 0 && (
-              <span className="flex h-6 min-w-6 items-center justify-center rounded-full bg-gradient-to-br from-[var(--accent)] to-[var(--accent-hover)] px-1.5 text-xs font-bold text-white shadow-md">
+              <span className="flex h-6 min-w-6 items-center justify-center rounded-full bg-[var(--accent)] px-1.5 text-xs font-bold text-white">
                 {totalItens > 99 ? "99+" : totalItens}
               </span>
             )}
@@ -71,7 +71,7 @@ export function Header({ nome, whatsapp, logoUrl, horaAbertura, horaFechamento }
               href={whatsappLink}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 rounded-xl bg-gradient-to-b from-[#25d366] to-[#20bd5a] px-4 py-2.5 text-sm font-bold text-white shadow-lg transition-all hover:shadow-xl hover:brightness-105 active:scale-[0.98]"
+              className="flex items-center gap-2 rounded-lg bg-[#25d366] px-4 py-2.5 text-sm font-semibold text-white transition hover:brightness-105 active:scale-[0.98]"
             >
               <WhatsAppIcon />
               <span className="hidden sm:inline">Fazer pedido</span>
