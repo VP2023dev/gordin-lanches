@@ -51,7 +51,7 @@ export function CardapioClient({
 
   return (
     <div className="min-h-screen pb-8">
-      <main className="mx-auto max-w-4xl">
+      <main className="mx-auto max-w-5xl">
         <PromocoesDia promocoes={promocoes} />
 
         <div
@@ -107,30 +107,31 @@ export function CardapioClient({
               <span className="h-8 w-1 shrink-0 rounded-full bg-gradient-to-b from-[var(--accent)] to-[var(--gold)]" aria-hidden />
               <h2 className="text-xl font-extrabold text-[var(--foreground)] sm:text-2xl tracking-tight">🍔 Combos</h2>
             </div>
-            <ul className="space-y-3">
+            <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               {combos.filter((c) => c.ativo).map((combo) => (
                 <li
                   key={combo.id}
-                  className="cardapio-card flex flex-wrap items-center justify-between gap-4 rounded-xl border border-[var(--border)] bg-[var(--card-bg)] p-4 shadow-[var(--shadow-card)] hover:border-[var(--accent)]/30 hover:shadow-[var(--shadow)]"
+                  className="cardapio-card-produto flex flex-col overflow-hidden rounded-2xl border-2 border-[var(--card-border)] bg-[var(--card-bg)] shadow-[var(--shadow-card)] transition hover:-translate-y-0.5 hover:border-[var(--accent)]/35 hover:shadow-[var(--shadow-hover)]"
                 >
-                  <div className="min-w-0 flex-1">
-                    <p className="font-bold text-[var(--foreground)] text-base">{combo.nome}</p>
-                    {combo.descricao && <p className="text-sm text-[var(--muted)] mt-0.5">{combo.descricao}</p>}
+                  <div className="flex flex-1 flex-col p-4">
+                    <p className="text-xs font-bold uppercase tracking-wider text-[var(--accent)]">Combo</p>
+                    <p className="mt-1 font-extrabold text-[var(--foreground)] text-lg leading-tight">{combo.nome}</p>
+                    {combo.descricao && <p className="mt-1.5 text-sm leading-relaxed text-[var(--muted)]">{combo.descricao}</p>}
                     {combo.itens?.length > 0 && (
-                      <p className="text-xs text-[var(--muted)] mt-1">
-                        {combo.itens.map((i) => `${i.quantidade}x ${i.produtoNome}`).join(" + ")}
+                      <p className="mt-2 rounded-lg bg-[var(--accent-soft)]/60 px-2.5 py-2 text-xs leading-relaxed text-[var(--foreground-soft)]">
+                        {combo.itens.map((i) => `${i.quantidade}× ${i.produtoNome}`).join(" · ")}
                       </p>
                     )}
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <span className="inline-flex items-center rounded-lg bg-[var(--accent-soft)] px-3 py-1.5 text-base font-extrabold text-[var(--accent)]">{formatPrice(combo.preco)}</span>
-                    <button
-                      type="button"
-                      onClick={() => addCombo(combo, 1)}
-                      className="btn-accent rounded-xl px-4 py-2.5 text-sm font-bold text-white shadow-md transition hover:brightness-110"
-                    >
-                      Adicionar
-                    </button>
+                    <div className="mt-4 flex flex-wrap items-end justify-between gap-3 border-t border-[var(--border)] pt-4">
+                      <span className="text-xl font-black tabular-nums text-[var(--accent)]">{formatPrice(combo.preco)}</span>
+                      <button
+                        type="button"
+                        onClick={() => addCombo(combo, 1)}
+                        className="btn-accent rounded-xl px-5 py-2.5 text-sm font-bold text-white shadow-lg transition hover:brightness-110 active:scale-[0.98]"
+                      >
+                        Adicionar combo
+                      </button>
+                    </div>
                   </div>
                 </li>
               ))}

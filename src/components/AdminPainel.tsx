@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import type { CardapioData } from "@/lib/data";
 import type { Categoria, Produto, Promocao, ConfigLoja, Acrescimo, Combo } from "@/types";
+import { AdminProducao } from "./AdminProducao";
 
 interface AdminPainelProps {
   onSair: () => void;
@@ -11,7 +12,9 @@ interface AdminPainelProps {
 export function AdminPainel({ onSair }: AdminPainelProps) {
   const [data, setData] = useState<CardapioData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [aba, setAba] = useState<"config" | "categorias" | "produtos" | "acrescimos" | "promocoes" | "pedidos" | "combos" | "avaliacoes">("config");
+  const [aba, setAba] = useState<
+    "config" | "categorias" | "produtos" | "acrescimos" | "promocoes" | "pedidos" | "producao" | "combos" | "avaliacoes"
+  >("config");
 
   const [erro, setErro] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
@@ -132,7 +135,7 @@ export function AdminPainel({ onSair }: AdminPainelProps) {
   return (
     <div className="min-h-screen bg-slate-100 pb-12">
       <header className="sticky top-0 z-50 bg-slate-800 shadow-lg">
-        <div className="mx-auto flex max-w-4xl flex-col gap-4 px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-500 text-white text-lg shadow-md">⚙️</div>
             <h1 className="text-xl font-bold text-white">Painel do Dono</h1>
@@ -154,10 +157,21 @@ export function AdminPainel({ onSair }: AdminPainelProps) {
             </button>
           </div>
         </div>
-        <nav className="mx-auto max-w-4xl overflow-x-auto px-4 pb-3 scrollbar-hide">
+        <nav className="mx-auto max-w-6xl overflow-x-auto px-4 pb-3 scrollbar-hide">
           <div className="flex gap-2 min-w-0">
-            {(["config", "categorias", "produtos", "acrescimos", "promocoes", "pedidos", "combos", "avaliacoes"] as const).map(
-              (a) => (
+            {(
+              [
+                "config",
+                "categorias",
+                "produtos",
+                "acrescimos",
+                "promocoes",
+                "pedidos",
+                "producao",
+                "combos",
+                "avaliacoes",
+              ] as const
+            ).map((a) => (
                 <button
                   key={a}
                   onClick={() => setAba(a)}
@@ -173,16 +187,16 @@ export function AdminPainel({ onSair }: AdminPainelProps) {
                   {a === "acrescimos" && "Acréscimos"}
                   {a === "promocoes" && "Promoções"}
                   {a === "pedidos" && "Pedidos"}
+                  {a === "producao" && "Produção"}
                   {a === "combos" && "Combos"}
                   {a === "avaliacoes" && "Avaliações"}
                 </button>
-              )
-            )}
+              ))}
           </div>
         </nav>
       </header>
 
-      <main className="mx-auto max-w-4xl px-4 py-6">
+      <main className="mx-auto max-w-6xl px-4 py-6">
         {aba === "config" && (
           <AdminConfig config={data.config} onSalvar={atualizarConfig} />
         )}
@@ -212,6 +226,14 @@ export function AdminPainel({ onSair }: AdminPainelProps) {
           />
         )}
         {aba === "pedidos" && <AdminPedidos />}
+        {aba === "producao" && (
+          <AdminProducao
+            onMensagem={(msg) => {
+              setToast(msg);
+              setTimeout(() => setToast(null), 3200);
+            }}
+          />
+        )}
         {aba === "combos" && (
           <AdminCombos
             combos={data.combos ?? []}
@@ -680,7 +702,20 @@ function AdminPromocoes({
 }
 
 function AdminPedidos() {
-  const [pedidos, setPedidos] = useState<{ id: string; numero?: number | null; createdAt: string; nomeCliente: string | null; itens: string; total: number; tipoEntrega: string; formaPagamento: string | null; endereco: string | null }[]>([]);
+  const [pedidos, setPedidos] = useState<
+    {
+      id: string;
+      numero?: number | null;
+      createdAt: string;
+      nomeCliente: string | null;
+      itens: string;
+      total: number;
+      tipoEntrega: string;
+      formaPagamento: string | null;
+      endereco: string | null;
+      statusProducao?: string;
+    }[]
+  >([]);
   const [loading, setLoading] = useState(true);
   const [hoje, setHoje] = useState(true);
 
@@ -695,6 +730,19 @@ function AdminPedidos() {
       .catch(() => setPedidos([]))
       .finally(() => setLoading(false));
   }, [hoje]);
+
+  const patchStatusPedido = async (id: string, status_producao: string) => {
+    const token = typeof window !== "undefined" ? sessionStorage.getItem("admin_token") : null;
+    const res = await fetch("/api/pedidos", {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token || ""}`,
+      },
+      body: JSON.stringify({ id, status_producao }),
+    });
+    if (res.ok) await carregar();
+  };
 
   useEffect(() => {
     carregar();
@@ -737,6 +785,7 @@ function AdminPedidos() {
                 <th className="p-3 font-semibold text-slate-700">Cliente</th>
                 <th className="p-3 font-semibold text-slate-700">Itens</th>
                 <th className="p-3 font-semibold text-slate-700">Total</th>
+                <th className="p-3 font-semibold text-slate-700">Produção</th>
                 <th className="p-3 font-semibold text-slate-700">Entrega</th>
               </tr>
             </thead>
@@ -748,6 +797,7 @@ function AdminPedidos() {
                 } catch {}
                 const resumo = itensParsed.map((i) => `${i.quantidade}x ${i.nome}`).join("; ") || "—";
                 const numeroStr = p.numero != null ? `#${String(p.numero).padStart(3, "0")}` : "—";
+                const st = (p.statusProducao || "recebido").toLowerCase();
                 return (
                   <tr key={p.id} className="border-b border-slate-100 hover:bg-slate-50/50 transition">
                     <td className="p-3 font-semibold text-orange-600">{numeroStr}</td>
@@ -755,6 +805,19 @@ function AdminPedidos() {
                     <td className="p-3 font-medium text-slate-800">{p.nomeCliente || "—"}</td>
                     <td className="max-w-[200px] truncate p-3 text-slate-600" title={resumo}>{resumo}</td>
                     <td className="p-3 font-semibold text-slate-800">{formatPrice(Number(p.total))}</td>
+                    <td className="p-3">
+                      <select
+                        className="max-w-[140px] rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-xs font-medium text-slate-800"
+                        value={st}
+                        onChange={(e) => void patchStatusPedido(p.id, e.target.value)}
+                        title="Status na cozinha"
+                      >
+                        <option value="recebido">Novo</option>
+                        <option value="em_producao">Em preparo</option>
+                        <option value="pronto">Pronto</option>
+                        <option value="concluido">Concluído</option>
+                      </select>
+                    </td>
                     <td className="p-3"><span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${p.tipoEntrega === "entrega" ? "bg-blue-100 text-blue-700" : "bg-slate-100 text-slate-700"}`}>{p.tipoEntrega === "entrega" ? "Entrega" : "Retirada"}</span></td>
                   </tr>
                 );

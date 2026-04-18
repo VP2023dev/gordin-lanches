@@ -108,10 +108,15 @@ html {
   transform: scale(0.99);
 }
 
+.cardapio-card-produto {
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.2s ease;
+}
+
 /* Imagem do produto com zoom sutil no hover */
 .cardapio-card-img {
-  transition: transform 0.25s ease;
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
 }
-.cardapio-card:hover .cardapio-card-img {
-  transform: scale(1.04);
+.cardapio-card:hover .cardapio-card-img,
+.cardapio-card-produto:hover .cardapio-card-img {
+  transform: scale(1.05);
 }

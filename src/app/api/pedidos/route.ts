@@ -27,11 +27,21 @@ export async function POST(request: NextRequest) {
     const { data: maxRow } = await supabase.from("pedidos").select("numero").order("numero", { ascending: false }).limit(1).maybeSingle();
     const proximoNumero = (Number((maxRow as { numero?: number } | null)?.numero) || 0) + 1;
 
-    const { data: inserted, error } = await supabase
-      .from("pedidos")
-      .insert({ ...payload, numero: proximoNumero })
-      .select("numero")
-      .single();
+    const rowComNumeroEStatus = { ...payload, numero: proximoNumero, status_producao: "recebido" as const };
+    const rowSoNumero = { ...payload, numero: proximoNumero };
+
+    let inserted: { numero: number } | null = null;
+    const first = await supabase.from("pedidos").insert(rowComNumeroEStatus).select("numero").single();
+    let error = first.error;
+    let dataIns = first.data;
+
+    if (error && /status_producao/i.test(error.message)) {
+      const second = await supabase.from("pedidos").insert(rowSoNumero).select("numero").single();
+      error = second.error;
+      dataIns = second.data;
+    }
+
+    inserted = dataIns as { numero: number } | null;
 
     if (error) {
       const colunaNumeroInexistente = /numero|column/i.test(error.message);
@@ -46,7 +56,7 @@ export async function POST(request: NextRequest) {
       console.error("Erro ao salvar pedido:", error);
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
-    numero = (inserted as { numero: number } | null)?.numero ?? proximoNumero;
+    numero = inserted?.numero ?? proximoNumero;
     return NextResponse.json({ ok: true, numero });
   } catch (e) {
     console.error(e);
@@ -86,10 +96,48 @@ export async function GET(request: NextRequest) {
       tipoEntrega: p.tipo_entrega,
       formaPagamento: p.forma_pagamento,
       endereco: p.endereco_json,
+      statusProducao: (p.status_producao as string) || "recebido",
     }));
     return NextResponse.json({ pedidos });
   } catch (e) {
     console.error(e);
     return NextResponse.json({ error: "Erro ao listar pedidos" }, { status: 500 });
+  }
+}
+
+const STATUS_PRODUCAO = new Set(["recebido", "em_producao", "pronto", "concluido"]);
+
+export async function PATCH(request: NextRequest) {
+  const auth = request.headers.get("authorization");
+  const token = auth?.replace("Bearer ", "");
+  if (token !== ADMIN_PASSWORD) {
+    return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
+  }
+  if (!supabaseUrl || !supabaseKey) {
+    return NextResponse.json({ error: "Supabase não configurado" }, { status: 503 });
+  }
+  try {
+    const body = await request.json();
+    const id = typeof body.id === "string" ? body.id.trim() : "";
+    const status_producao = body.status_producao as string;
+    if (!id || !status_producao || !STATUS_PRODUCAO.has(status_producao)) {
+      return NextResponse.json({ error: "id ou status_producao inválido" }, { status: 400 });
+    }
+    const supabase = createClient(supabaseUrl, supabaseKey);
+    const { error } = await supabase.from("pedidos").update({ status_producao }).eq("id", id);
+    if (error) {
+      if (/status_producao|column/i.test(error.message)) {
+        return NextResponse.json(
+          { error: "Coluna status_producao ausente. Execute database/migration-pedido-status-producao.sql no Supabase." },
+          { status: 503 }
+        );
+      }
+      console.error("PATCH pedidos:", error);
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+    return NextResponse.json({ ok: true });
+  } catch (e) {
+    console.error(e);
+    return NextResponse.json({ error: "Erro ao atualizar pedido" }, { status: 500 });
   }
 }
