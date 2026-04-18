@@ -40,6 +40,22 @@ export interface ConfigLoja {
   horaAbertura?: string | null;
   /** "23:00" - para exibir "Aberto agora" */
   horaFechamento?: string | null;
+  /** Ex.: "~25 min" — exibido no cardápio e no pedido */
+  tempoEstimadoTexto?: string;
+  /** Taxa quando o bairro não está na lista (R$) */
+  taxaEntregaPadrao?: number;
+  /**
+   * Uma linha por bairro: `Centro;5` ou `Jardim Europa;7,50`
+   * (ponto e vírgula entre nome e valor)
+   */
+  taxasBairroText?: string;
+  /** Código promocional (cliente digita na finalização) */
+  cupomCodigo?: string;
+  /** Desconto % sobre o subtotal dos itens (não incide na entrega) */
+  cupomDescontoPercent?: number;
+  cnpj?: string;
+  /** URL completa do atributo `src` do iframe do Google Maps */
+  mapsEmbedUrl?: string;
 }
 
 /** Item de um combo (produto + quantidade) */

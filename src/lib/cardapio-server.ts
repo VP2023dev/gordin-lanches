@@ -1,5 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import type { CardapioData } from "@/lib/data";
+import { mapConfigFromSupabaseRow } from "@/lib/config-loja";
 
 /**
  * Busca o cardápio direto do Supabase (uso no servidor).
@@ -41,15 +42,17 @@ export async function getCardapioFromDb(full = false): Promise<CardapioData> {
       ? acrescimosRaw
       : acrescimosRaw.filter((a) => a.ativo !== false);
 
-    const config = configRes.data || {
-      nome: "Gordinho Lanches",
-      whatsapp: "5517991449785",
-      endereco: "",
-      horario: "",
-      logo_url: null,
-      hora_abertura: null,
-      hora_fechamento: null,
-    };
+    const config = mapConfigFromSupabaseRow(
+      (configRes.data as Record<string, unknown> | null) ?? {
+        nome: "Gordinho Lanches",
+        whatsapp: "5517991449785",
+        endereco: "",
+        horario: "",
+        logo_url: null,
+        hora_abertura: null,
+        hora_fechamento: null,
+      }
+    );
 
     const categoriasData = categoriasRes.data || [];
     const categoriasFiltered = full
@@ -127,15 +130,7 @@ export async function getCardapioFromDb(full = false): Promise<CardapioData> {
     }
 
     return {
-      config: {
-        nome: config.nome,
-        whatsapp: config.whatsapp,
-        endereco: config.endereco,
-        horario: config.horario,
-        logoUrl: config.logo_url || null,
-        horaAbertura: config.hora_abertura ?? null,
-        horaFechamento: config.hora_fechamento ?? null,
-      },
+      config,
       categorias,
       produtos: produtos as CardapioData["produtos"],
       promocoes: promocoes as CardapioData["promocoes"],
@@ -150,13 +145,13 @@ export async function getCardapioFromDb(full = false): Promise<CardapioData> {
 
 function getCardapioFallback(): CardapioData {
   return {
-    config: {
+    config: mapConfigFromSupabaseRow({
       nome: "Gordinho Lanches",
       whatsapp: "5517991449785",
       endereco: "",
       horario: "",
-      logoUrl: null,
-    },
+      logo_url: null,
+    }),
     categorias: [],
     produtos: [],
     promocoes: [],

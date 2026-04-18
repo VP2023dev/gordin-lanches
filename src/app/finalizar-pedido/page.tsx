@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useCart, totalItemLinha } from "@/context/CartContext";
 import { formatPrice } from "@/lib/data";
+import type { ConfigLoja } from "@/types";
+import { parseTaxasBairroTexto, taxaEntregaParaBairro, valorDescontoCupom } from "@/lib/entrega";
 
-const CUSTO_ENTREGA = 5;
 const FORMAS_PAGAMENTO = [
   { id: "dinheiro", label: "Dinheiro" },
   { id: "pix", label: "PIX" },
@@ -25,7 +26,7 @@ function stripePixCheckoutHabilitado() {
 
 export default function FinalizarPedidoPage() {
   const { itens, removeItem, updateQuantity, updateObservation, totalPreco, clearCart } = useCart();
-  const [config, setConfig] = useState<{ nome: string; whatsapp: string } | null>(null);
+  const [config, setConfig] = useState<ConfigLoja | null>(null);
   const [nomeCliente, setNomeCliente] = useState("");
   const [tipoEntrega, setTipoEntrega] = useState<"entrega" | "retirada">("retirada");
   const [formaPagamento, setFormaPagamento] = useState<string>("dinheiro");
@@ -40,13 +41,18 @@ export default function FinalizarPedidoPage() {
   });
   const [enviado, setEnviado] = useState(false);
   const [numeroPedido, setNumeroPedido] = useState<number | null>(null);
+  const [cupomInput, setCupomInput] = useState("");
 
   useEffect(() => {
     fetch("/api/cardapio")
       .then((r) => r.json())
       .then((data) => setConfig(data.config))
       .catch(() =>
-        setConfig({ nome: "Gordinho Lanches", whatsapp: "5517991449785" })
+        setConfig({
+          nome: "Gordinho Lanches",
+          whatsapp: "5517991449785",
+          taxaEntregaPadrao: 5,
+        })
       );
   }, []);
 
@@ -59,8 +65,25 @@ export default function FinalizarPedidoPage() {
     }
   }, []);
 
-  const totalEntrega = tipoEntrega === "entrega" ? CUSTO_ENTREGA : 0;
-  const totalGeral = totalPreco + totalEntrega;
+  const taxaPadrao = config?.taxaEntregaPadrao ?? 5;
+  const regrasBairro = useMemo(
+    () => parseTaxasBairroTexto(config?.taxasBairroText),
+    [config?.taxasBairroText]
+  );
+  const valorEntrega =
+    tipoEntrega === "entrega" ? taxaEntregaParaBairro(endereco.bairro, taxaPadrao, regrasBairro) : 0;
+  const cupomAtivo = useMemo(() => {
+    const cod = config?.cupomCodigo?.trim();
+    const pct = config?.cupomDescontoPercent;
+    if (!cod || !pct || pct <= 0) return false;
+    return cupomInput.trim().toLowerCase() === cod.toLowerCase();
+  }, [config?.cupomCodigo, config?.cupomDescontoPercent, cupomInput]);
+  const valorDesconto =
+    cupomAtivo && config?.cupomDescontoPercent
+      ? valorDescontoCupom(totalPreco, config.cupomDescontoPercent)
+      : 0;
+  const subtotalComDesconto = Math.max(0, Math.round((totalPreco - valorDesconto) * 100) / 100);
+  const totalGeral = subtotalComDesconto + valorEntrega;
 
   const podeFinalizar =
     itens.length > 0 &&
@@ -125,8 +148,13 @@ export default function FinalizarPedidoPage() {
       `*Subtotal:* R$ ${totalPreco.toFixed(2)}`,
     ];
 
+    if (valorDesconto > 0) {
+      linhas.push(`*Desconto (cupom):* −R$ ${valorDesconto.toFixed(2)}`);
+      linhas.push(`*Subtotal c/ desconto:* R$ ${subtotalComDesconto.toFixed(2)}`);
+    }
+
     if (tipoEntrega === "entrega") {
-      linhas.push(`*Entrega:* R$ ${CUSTO_ENTREGA.toFixed(2)}`);
+      linhas.push(`*Taxa de entrega (${endereco.bairro.trim() || "bairro"}):* R$ ${valorEntrega.toFixed(2)}`);
       linhas.push("");
       linhas.push("*Endereço de entrega:*");
       linhas.push(`Rua ${endereco.rua}, nº ${endereco.numero}`);
@@ -141,6 +169,10 @@ export default function FinalizarPedidoPage() {
     linhas.push(`*Forma de pagamento:* ${FORMAS_PAGAMENTO.find((f) => f.id === formaPagamento)?.label || formaPagamento}`);
     linhas.push("");
     linhas.push(`*Total: R$ ${totalGeral.toFixed(2)}*`);
+    if (config.tempoEstimadoTexto?.trim()) {
+      linhas.push("");
+      linhas.push(`*Previsão:* ${config.tempoEstimadoTexto.trim()}`);
+    }
 
     const msg = encodeURIComponent(linhas.join("\n"));
     const waUrl = `https://wa.me/${config.whatsapp.replace(/\D/g, "")}?text=${msg}`;
@@ -288,6 +320,13 @@ export default function FinalizarPedidoPage() {
         </div>
       )}
 
+      {config.tempoEstimadoTexto?.trim() && (
+        <div className="mb-6 rounded-xl border border-[var(--accent)]/30 bg-[var(--accent-soft)]/50 px-4 py-3 text-sm text-[var(--foreground)]">
+          <span className="font-semibold">Tempo estimado: </span>
+          {config.tempoEstimadoTexto.trim()}
+        </div>
+      )}
+
       {/* Nome do cliente */}
       <section className="card-lift mb-8 rounded-2xl border-2 border-[var(--card-border)] bg-[var(--card-bg)] p-5 shadow-[var(--shadow)]">
         <h2 className="mb-4 text-lg font-bold text-[var(--foreground)]">
@@ -406,9 +445,7 @@ export default function FinalizarPedidoPage() {
               onChange={() => setTipoEntrega("entrega")}
               className="h-4 w-4 accent-[var(--accent)]"
             />
-            <span className="font-semibold">
-              Entrega (custo de {formatPrice(CUSTO_ENTREGA)})
-            </span>
+            <span className="font-semibold">Entrega no endereço (taxa por bairro)</span>
           </label>
         </div>
 
@@ -455,9 +492,39 @@ export default function FinalizarPedidoPage() {
               }
               className="w-full rounded-lg border border-[var(--border)] bg-[var(--card-bg)] px-3 py-2.5 text-[var(--foreground)] placeholder-[var(--muted)]"
             />
+            <p className="text-sm text-[var(--foreground)]">
+              Taxa para este bairro:{" "}
+              <strong className="text-[var(--accent)]">{formatPrice(valorEntrega)}</strong>
+              {regrasBairro.length === 0 && (
+                <span className="text-[var(--muted)]"> (taxa padrão; configure bairros no admin para valores diferentes)</span>
+              )}
+            </p>
           </div>
         )}
       </section>
+
+      {config.cupomCodigo?.trim() && config.cupomDescontoPercent != null && config.cupomDescontoPercent > 0 && (
+        <section className="card-lift mb-8 rounded-2xl border-2 border-[var(--card-border)] bg-[var(--card-bg)] p-5 shadow-[var(--shadow)]">
+          <h2 className="mb-2 text-lg font-bold text-[var(--foreground)]">Cupom</h2>
+          <p className="mb-3 text-sm text-[var(--muted)]">
+            Se tiver código promocional, digite abaixo. Desconto de {config.cupomDescontoPercent}% sobre o subtotal dos itens.
+          </p>
+          <input
+            type="text"
+            placeholder="Código do cupom"
+            value={cupomInput}
+            onChange={(e) => setCupomInput(e.target.value)}
+            className="w-full rounded-xl border-2 border-[var(--border)] bg-[var(--card-bg)] px-4 py-3 text-[var(--foreground)] placeholder-[var(--muted)] transition focus:border-[var(--accent)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-glow)]"
+          />
+          {cupomInput.trim() && (
+            <p className={`mt-2 text-sm ${cupomAtivo ? "font-semibold text-emerald-600 dark:text-emerald-400" : "text-amber-700 dark:text-amber-300"}`}>
+              {cupomAtivo
+                ? `Cupom aplicado: −${formatPrice(valorDesconto)}`
+                : "Código não confere. Verifique e tente de novo."}
+            </p>
+          )}
+        </section>
+      )}
 
       {/* Forma de pagamento */}
       <section className="card-lift mb-8 rounded-2xl border-2 border-[var(--card-border)] bg-[var(--card-bg)] p-5 shadow-[var(--shadow)]">
@@ -486,13 +553,27 @@ export default function FinalizarPedidoPage() {
 
       {/* Total e botão */}
       <div className="sticky bottom-0 left-0 right-0 rounded-2xl border-2 border-[var(--card-border)] bg-[var(--card-bg)] p-5 shadow-[var(--shadow-hover)]">
-        <div className="mb-4 flex justify-between text-lg">
-          <span className="font-semibold text-[var(--muted)]">
-            {tipoEntrega === "entrega" ? "Subtotal + Entrega" : "Total"}
-          </span>
-          <span className="text-xl font-extrabold text-[var(--accent)]">
-            {formatPrice(totalGeral)}
-          </span>
+        <div className="mb-4 space-y-1.5 text-sm">
+          <div className="flex justify-between text-[var(--muted)]">
+            <span>Subtotal</span>
+            <span>{formatPrice(totalPreco)}</span>
+          </div>
+          {valorDesconto > 0 && (
+            <div className="flex justify-between text-emerald-600 dark:text-emerald-400">
+              <span>Desconto</span>
+              <span>−{formatPrice(valorDesconto)}</span>
+            </div>
+          )}
+          {tipoEntrega === "entrega" && (
+            <div className="flex justify-between text-[var(--muted)]">
+              <span>Entrega</span>
+              <span>{formatPrice(valorEntrega)}</span>
+            </div>
+          )}
+          <div className="flex justify-between border-t border-[var(--border)] pt-2 text-lg">
+            <span className="font-semibold text-[var(--foreground)]">Total</span>
+            <span className="text-xl font-extrabold text-[var(--accent)]">{formatPrice(totalGeral)}</span>
+          </div>
         </div>
         <button
           type="button"

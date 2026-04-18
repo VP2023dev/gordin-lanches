@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { mapConfigFromSupabaseRow } from "@/lib/config-loja";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -32,14 +33,16 @@ export async function GET(request: Request) {
         : supabase.from("acrescimos").select("*").eq("ativo", true).order("ordem"),
     ]);
 
-    const config = configRes.data || {
-      nome: "Gordinho Lanches",
-      whatsapp: "5517991449785",
-      endereco: "",
-      horario: "",
-      hora_abertura: null,
-      hora_fechamento: null,
-    };
+    const config = mapConfigFromSupabaseRow(
+      (configRes.data as Record<string, unknown> | null) ?? {
+        nome: "Gordinho Lanches",
+        whatsapp: "5517991449785",
+        endereco: "",
+        horario: "",
+        hora_abertura: null,
+        hora_fechamento: null,
+      }
+    );
 
     const categoriasData = categoriasRes.data || [];
     const categoriasFiltered = full ? categoriasData : categoriasData.filter((c: { ativa?: boolean }) => c.ativa !== false);
@@ -115,15 +118,7 @@ export async function GET(request: Request) {
     }
 
     return NextResponse.json({
-      config: {
-        nome: config.nome,
-        whatsapp: config.whatsapp,
-        endereco: config.endereco,
-        horario: config.horario,
-        logoUrl: config.logo_url || null,
-        horaAbertura: config.hora_abertura ?? null,
-        horaFechamento: config.hora_fechamento ?? null,
-      },
+      config,
       categorias,
       produtos,
       promocoes,

@@ -55,6 +55,12 @@ export function Header({ nome, whatsapp, logoUrl, horaAbertura, horaFechamento }
         </div>
         <div className="flex items-center gap-2">
           <Link
+            href="/sobre"
+            className="rounded-lg border border-transparent px-2 py-2 text-xs font-medium text-[var(--muted)] transition hover:border-[var(--border)] hover:bg-neutral-50 hover:text-[var(--foreground)] sm:px-3 sm:text-sm"
+          >
+            Sobre
+          </Link>
+          <Link
             href="/finalizar-pedido"
             className="relative flex items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--card-bg)] px-3 py-2 text-sm font-medium text-[var(--foreground-soft)] transition hover:border-[var(--border-strong)] hover:bg-neutral-50"
           >

@@ -263,6 +263,10 @@ function AdminConfig({
   const [form, setForm] = useState(config);
   const [uploadingLogo, setUploadingLogo] = useState(false);
 
+  useEffect(() => {
+    setForm(config);
+  }, [config]);
+
   const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -335,6 +339,88 @@ function AdminConfig({
           </div>
         </div>
         <p className="text-xs text-slate-500 bg-slate-50 rounded-lg p-3">Se preenchidos, o header mostra &quot;Aberto&quot;/&quot;Fechado&quot; e o botão de pedido fica desabilitado quando fechado.</p>
+
+        <div>
+          <label className="block text-sm font-medium text-slate-600">Tempo estimado / fila (cardápio e pedido)</label>
+          <input
+            value={form.tempoEstimadoTexto ?? ""}
+            onChange={(e) => setForm({ ...form, tempoEstimadoTexto: e.target.value })}
+            placeholder="~25 min"
+            className={inputClass}
+          />
+        </div>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div>
+            <label className="block text-sm font-medium text-slate-600">Taxa de entrega padrão (R$)</label>
+            <input
+              type="number"
+              min={0}
+              step={0.01}
+              value={form.taxaEntregaPadrao ?? 5}
+              onChange={(e) =>
+                setForm({ ...form, taxaEntregaPadrao: e.target.value === "" ? undefined : Number(e.target.value) })
+              }
+              className={inputClass}
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-slate-600">CNPJ (página Sobre)</label>
+            <input
+              value={form.cnpj ?? ""}
+              onChange={(e) => setForm({ ...form, cnpj: e.target.value })}
+              placeholder="00.000.000/0001-00"
+              className={inputClass}
+            />
+          </div>
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-slate-600">Taxas por bairro (uma linha: Bairro;valor)</label>
+          <textarea
+            value={form.taxasBairroText ?? ""}
+            onChange={(e) => setForm({ ...form, taxasBairroText: e.target.value })}
+            rows={5}
+            placeholder={"Centro;5\nJardim Europa;7,50\nVila Nova;6"}
+            className={`${inputClass} font-mono text-sm`}
+          />
+          <p className="mt-1 text-xs text-slate-500">Se o bairro do cliente não bater com nenhuma linha, usa a taxa padrão.</p>
+        </div>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div>
+            <label className="block text-sm font-medium text-slate-600">Código do cupom</label>
+            <input
+              value={form.cupomCodigo ?? ""}
+              onChange={(e) => setForm({ ...form, cupomCodigo: e.target.value })}
+              placeholder="ex: PRIMEIRA10"
+              className={inputClass}
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-slate-600">Desconto do cupom (% no subtotal)</label>
+            <input
+              type="number"
+              min={1}
+              max={100}
+              value={form.cupomDescontoPercent ?? ""}
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  cupomDescontoPercent: e.target.value === "" ? undefined : Number(e.target.value),
+                })
+              }
+              className={inputClass}
+            />
+          </div>
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-slate-600">URL do mapa (iframe do Google Maps)</label>
+          <input
+            value={form.mapsEmbedUrl ?? ""}
+            onChange={(e) => setForm({ ...form, mapsEmbedUrl: e.target.value })}
+            placeholder="https://www.google.com/maps/embed?pb=..."
+            className={inputClass}
+          />
+          <p className="mt-1 text-xs text-slate-500">Maps → Compartilhar → Incorporar um mapa → copie só o valor do src do iframe.</p>
+        </div>
       </div>
       <button onClick={() => onSalvar(form)} className="mt-6 w-full rounded-xl bg-orange-500 px-4 py-3 font-semibold text-white shadow-lg transition hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:ring-offset-2">
         Salvar configurações

@@ -26,6 +26,13 @@ export async function POST(request: NextRequest) {
 
     if (tipo === "config") {
       const { data: existing } = await supabase.from("config_loja").select("id").single();
+      const cupomCodigo = dados.cupomCodigo?.trim() || "";
+      const pctRaw = dados.cupomDescontoPercent;
+      const pct =
+        cupomCodigo && pctRaw != null && Number.isFinite(Number(pctRaw)) && Number(pctRaw) > 0
+          ? Math.min(100, Math.max(1, Math.round(Number(pctRaw))))
+          : null;
+
       const row = {
         nome: dados.nome,
         whatsapp: dados.whatsapp,
@@ -34,6 +41,16 @@ export async function POST(request: NextRequest) {
         logo_url: dados.logoUrl ?? null,
         hora_abertura: dados.horaAbertura?.trim() || null,
         hora_fechamento: dados.horaFechamento?.trim() || null,
+        tempo_estimado_texto: dados.tempoEstimadoTexto?.trim() || null,
+        taxa_entrega_padrao:
+          dados.taxaEntregaPadrao != null && Number.isFinite(Number(dados.taxaEntregaPadrao))
+            ? Number(dados.taxaEntregaPadrao)
+            : 5,
+        taxas_bairro_text: dados.taxasBairroText?.trim() || null,
+        cupom_codigo: cupomCodigo || null,
+        cupom_desconto_percent: pct,
+        cnpj: dados.cnpj?.trim() || null,
+        maps_embed_url: dados.mapsEmbedUrl?.trim() || null,
         updated_at: new Date().toISOString(),
       };
       if (existing) {

@@ -6,7 +6,7 @@ import { PromocoesDia } from "./PromocoesDia";
 import { CategoriaSection } from "./CategoriaSection";
 import { useCart } from "@/context/CartContext";
 import { formatPrice } from "@/lib/data";
-import type { Produto, Categoria, Promocao, Acrescimo, Combo } from "@/types";
+import type { Produto, Categoria, Promocao, Acrescimo, Combo, ConfigLoja } from "@/types";
 
 interface CardapioClientProps {
   categorias: Categoria[];
@@ -14,7 +14,7 @@ interface CardapioClientProps {
   promocoes: Promocao[];
   acrescimos: Acrescimo[];
   combos?: Combo[];
-  config: { nome: string; whatsapp: string };
+  config: ConfigLoja;
 }
 
 export function CardapioClient({
@@ -23,6 +23,7 @@ export function CardapioClient({
   promocoes,
   acrescimos = [],
   combos = [],
+  config,
 }: CardapioClientProps) {
   const { addCombo, totalItens, totalPreco } = useCart();
   const [busca, setBusca] = useState("");
@@ -53,6 +54,14 @@ export function CardapioClient({
     <div className="min-h-screen pb-8">
       <main className="mx-auto max-w-5xl">
         <PromocoesDia promocoes={promocoes} />
+
+        {config.tempoEstimadoTexto?.trim() && (
+          <div className="mx-4 mt-4 rounded-xl border border-[var(--accent)]/25 bg-[var(--accent-soft)]/60 px-4 py-3 text-sm text-[var(--foreground)]">
+            <span className="font-semibold text-[var(--accent)]">Tempo estimado: </span>
+            {config.tempoEstimadoTexto.trim()}
+            <span className="text-[var(--muted)]"> — sujeito à fila no momento do pedido.</span>
+          </div>
+        )}
 
         <div className="sticky top-[57px] z-30 border-b border-[var(--border)] bg-[var(--card-bg)]/95 px-4 py-3 shadow-[var(--shadow-card)] backdrop-blur-md sm:top-[65px]">
           <div className="relative">
