@@ -56,8 +56,8 @@ export function CardapioClient({
         <PromocoesDia promocoes={promocoes} />
 
         {config.tempoEstimadoTexto?.trim() && (
-          <div className="mx-4 mt-4 rounded-xl border border-[var(--accent)]/25 bg-[var(--accent-soft)]/60 px-4 py-3 text-sm text-[var(--foreground)]">
-            <span className="font-semibold text-[var(--accent)]">Tempo estimado: </span>
+          <div className="mx-4 mt-4 rounded-lg border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm text-[var(--foreground)]">
+            <span className="font-semibold text-zinc-800">Tempo estimado: </span>
             {config.tempoEstimadoTexto.trim()}
             <span className="text-[var(--muted)]"> — sujeito à fila no momento do pedido.</span>
           </div>
@@ -80,10 +80,10 @@ export function CardapioClient({
             <button
               type="button"
               onClick={() => setCategoriaFiltro(null)}
-              className={`shrink-0 rounded-full border px-3.5 py-2 text-sm font-medium transition ${
+              className={`shrink-0 rounded-md border px-3.5 py-2 text-sm font-medium transition ${
                 !categoriaFiltro
-                  ? "border-transparent bg-[var(--foreground)] text-white"
-                  : "border-[var(--border)] bg-[var(--card-bg)] text-[var(--muted)] hover:border-[var(--border-strong)]"
+                  ? "border-zinc-900 bg-zinc-900 text-white"
+                  : "border-[var(--border)] bg-[var(--card-bg)] text-[var(--muted)] hover:border-zinc-300 hover:bg-zinc-50"
               }`}
             >
               Todos
@@ -95,10 +95,10 @@ export function CardapioClient({
                 onClick={() =>
                   setCategoriaFiltro(categoriaFiltro === cat.id ? null : cat.id)
                 }
-                className={`shrink-0 rounded-full border px-3.5 py-2 text-sm font-medium transition ${
+                className={`shrink-0 rounded-md border px-3.5 py-2 text-sm font-medium transition ${
                   categoriaFiltro === cat.id
-                    ? "border-transparent bg-[var(--foreground)] text-white"
-                    : "border-[var(--border)] bg-[var(--card-bg)] text-[var(--muted)] hover:border-[var(--border-strong)]"
+                    ? "border-zinc-900 bg-zinc-900 text-white"
+                    : "border-[var(--border)] bg-[var(--card-bg)] text-[var(--muted)] hover:border-zinc-300 hover:bg-zinc-50"
                 }`}
               >
                 {cat.nome}
@@ -134,7 +134,7 @@ export function CardapioClient({
                       <button
                         type="button"
                         onClick={() => addCombo(combo, 1)}
-                        className="btn-accent rounded-lg px-4 py-2 text-sm font-semibold text-white active:scale-[0.98]"
+                        className="rounded-md bg-zinc-900 px-4 py-2 text-sm font-semibold text-white hover:bg-zinc-800 active:scale-[0.98]"
                       >
                         Adicionar
                       </button>
@@ -183,13 +183,13 @@ export function CardapioClient({
               <p className="text-xs font-semibold uppercase tracking-wide text-[var(--muted)]">
                 Você tem {totalItens} {totalItens === 1 ? "item" : "itens"} no carrinho
               </p>
-              <p className="text-sm font-extrabold text-[var(--accent)]">
+              <p className="text-sm font-semibold tabular-nums text-zinc-900">
                 Total: {formatPrice(totalPreco)}
               </p>
             </div>
             <Link
               href="/finalizar-pedido"
-              className="btn-accent rounded-lg px-4 py-2.5 text-xs font-semibold text-white transition hover:brightness-105"
+              className="rounded-md bg-zinc-900 px-4 py-2.5 text-xs font-semibold text-white transition hover:bg-zinc-800"
             >
               Ver carrinho
             </Link>

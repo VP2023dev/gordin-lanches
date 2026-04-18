@@ -15,13 +15,13 @@ export function PromocoesDia({ promocoes }: PromocoesDiaProps) {
   return (
     <section className="border-b border-[var(--border)] bg-[var(--card-bg)] px-4 py-5">
       <div className="mb-3 flex items-center gap-2">
-        <h2 className="text-lg font-semibold text-[var(--foreground)] sm:text-xl">Promoções do dia</h2>
+        <h2 className="text-base font-semibold tracking-tight text-[var(--foreground)] sm:text-lg">Em destaque</h2>
       </div>
       <div className="flex gap-3 overflow-x-auto pb-1 scrollbar-hide">
         {promocoesAtivas.map((promo) => (
           <div
             key={promo.id}
-            className="flex min-w-[260px] shrink-0 overflow-hidden rounded-xl border border-[var(--card-border)] bg-[var(--card-bg)] shadow-[var(--shadow-card)] transition hover:shadow-[var(--shadow-hover)]"
+            className="flex min-w-[260px] shrink-0 overflow-hidden rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] shadow-[var(--shadow-card)] transition hover:border-zinc-300 hover:shadow-[var(--shadow-hover)]"
           >
             {promo.imagem ? (
               <div className="relative h-24 w-24 shrink-0 overflow-hidden bg-neutral-100">
@@ -44,7 +44,7 @@ export function PromocoesDia({ promocoes }: PromocoesDiaProps) {
                 {promo.descricao}
               </p>
               {promo.precoPromocional !== undefined && (
-                <p className="mt-2 text-base font-bold text-[var(--accent)] tabular-nums">
+                <p className="mt-2 text-base font-semibold tabular-nums text-zinc-900">
                   {formatPrice(promo.precoPromocional)}
                 </p>
               )}

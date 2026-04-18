@@ -33,8 +33,8 @@ export function Header({ nome, whatsapp, logoUrl, horaAbertura, horaFechamento }
                 className="h-11 w-11 shrink-0 rounded-xl object-cover shadow-md sm:h-12 sm:w-12"
               />
             ) : (
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-[var(--accent)] text-lg text-white sm:h-12 sm:w-12">
-                🍔
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg border border-zinc-200 bg-zinc-100 text-[10px] font-bold tracking-wide text-zinc-600 sm:h-12 sm:w-12">
+                LOGO
               </div>
             )}
             <span className="text-lg font-semibold tracking-tight text-[var(--foreground)] sm:text-xl">
@@ -45,8 +45,8 @@ export function Header({ nome, whatsapp, logoUrl, horaAbertura, horaFechamento }
             <span
               className={`rounded-full px-2.5 py-1 text-xs font-bold shadow-sm ${
                 aberto
-                  ? "bg-emerald-500/20 text-emerald-700 dark:text-emerald-300"
-                  : "bg-red-500/20 text-red-700 dark:text-red-300"
+                  ? "bg-zinc-200/80 text-zinc-800 dark:bg-zinc-700/50 dark:text-zinc-200"
+                  : "bg-red-100 text-red-800 dark:bg-red-950/40 dark:text-red-200"
               }`}
             >
               {aberto ? "Aberto" : "Fechado"}

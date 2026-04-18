@@ -1,32 +1,30 @@
 @import "tailwindcss";
 
 :root {
-  /* Fundo neutro (estilo app de delivery — leve, sem “grito”) */
-  --background: #f5f5f5;
-  --background-end: #f0f0f0;
-  --foreground: #1a1a1a;
-  --foreground-soft: #3f3f3f;
+  /* Cardápio: neutro editorial (menos “app infantil”) */
+  --background: #f4f4f5;
+  --background-end: #e4e4e7;
+  --foreground: #18181b;
+  --foreground-soft: #3f3f46;
 
-  /* Cards brancos, borda cinza suave */
   --card-bg: #ffffff;
-  --card-border: #ebebeb;
+  --card-border: #e4e4e7;
 
-  /* Laranja da marca — um tom mais contido */
-  --accent: #ea580c;
-  --accent-hover: #c2410c;
-  --accent-soft: #fff7ed;
-  --accent-glow: rgba(234, 88, 12, 0.12);
+  /* Destaque só onde importa (preço, CTA secundário) */
+  --accent: #b45309;
+  --accent-hover: #92400e;
+  --accent-soft: #fffbeb;
+  --accent-glow: rgba(180, 83, 9, 0.12);
 
-  --gold: #ca8a04;
+  --gold: #a16207;
   --gold-soft: #fef9c3;
 
-  --muted: #717171;
-  --border: #e8e8e8;
-  --border-strong: #dedede;
+  --muted: #71717a;
+  --border: #e4e4e7;
+  --border-strong: #d4d4d8;
 
-  /* Sombras discretas (tipo lista de restaurante) */
-  --shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
-  --shadow-hover: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-hover: 0 8px 24px rgba(0, 0, 0, 0.06);
   --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.04);
 }
 
@@ -60,31 +58,31 @@ html {
   display: none;
 }
 
-/* Botão principal: sólido + sombra leve (menos “neon”) */
+/* Botão principal do site público: neutro sóbrio */
 .btn-accent {
-  background: var(--accent);
+  background: #18181b;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
 }
 .btn-accent:hover {
-  background: var(--accent-hover);
-  box-shadow: 0 2px 8px var(--accent-glow);
+  background: #27272a;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 /* ========== Painel Admin ========== */
 .admin-page {
-  --admin-bg: #f1f5f9;
+  --admin-bg: #f4f4f5;
   --admin-card: #ffffff;
-  --admin-border: #e2e8f0;
-  --admin-head: #0f172a;
-  --admin-muted: #64748b;
-  --admin-primary: #ea580c;
-  --admin-primary-hover: #c2410c;
-  --admin-nav-bg: #1e293b;
-  --admin-nav-text: #94a3b8;
-  --admin-nav-active: #f8fafc;
-  --admin-input-focus: #fdba74;
-  --admin-success: #16a34a;
-  --admin-danger: #dc2626;
+  --admin-border: #e4e4e7;
+  --admin-head: #18181b;
+  --admin-muted: #71717a;
+  --admin-primary: #18181b;
+  --admin-primary-hover: #27272a;
+  --admin-nav-bg: #09090b;
+  --admin-nav-text: #a1a1aa;
+  --admin-nav-active: #fafafa;
+  --admin-input-focus: #a1a1aa;
+  --admin-success: #15803d;
+  --admin-danger: #b91c1c;
 }
 
 .card-lift {

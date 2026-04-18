@@ -87,9 +87,9 @@ function notificarNovosPedidos(pedidosNovos: PedidoProducao[]) {
 }
 
 const COLUNAS = [
-  { key: "recebido" as const, titulo: "Novos", subtitulo: "Aguardando preparo", cor: "from-amber-500 to-orange-600", borda: "border-amber-200/80" },
-  { key: "em_producao" as const, titulo: "Em preparo", subtitulo: "Na cozinha", cor: "from-orange-500 to-red-500", borda: "border-orange-200/80" },
-  { key: "pronto" as const, titulo: "Pronto", subtitulo: "Para retirada / entrega", cor: "from-emerald-500 to-teal-600", borda: "border-emerald-200/80" },
+  { key: "recebido" as const, titulo: "Novos", subtitulo: "Aguardando preparo", cor: "bg-zinc-800", borda: "border-zinc-200" },
+  { key: "em_producao" as const, titulo: "Em preparo", subtitulo: "Na cozinha", cor: "bg-zinc-700", borda: "border-zinc-200" },
+  { key: "pronto" as const, titulo: "Pronto", subtitulo: "Retirada / entrega", cor: "bg-zinc-900", borda: "border-zinc-200" },
 ];
 
 function statusNorm(s?: string | null) {
@@ -248,10 +248,10 @@ export function AdminProducao({ onMensagem }: { onMensagem: (msg: string) => voi
 
   return (
     <div className="space-y-6">
-      <div className="rounded-2xl border border-slate-200 bg-gradient-to-br from-white via-slate-50/80 to-orange-50/30 p-6 shadow-xl shadow-slate-200/40">
-        <div className="flex flex-col gap-4 border-b border-slate-200/80 pb-5 sm:flex-row sm:items-center sm:justify-between">
+      <div className="rounded-lg border border-zinc-200 bg-white p-6 shadow-sm">
+        <div className="flex flex-col gap-4 border-b border-zinc-200 pb-5 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h2 className="text-xl font-extrabold tracking-tight text-slate-900">Produção</h2>
+            <h2 className="text-lg font-semibold tracking-tight text-zinc-900">Produção</h2>
             <p className="mt-1 text-sm text-slate-600">
               Acompanhe os pedidos de <strong>hoje</strong> do recebimento ao pronto. Atualize o status conforme a cozinha avança.
             </p>
@@ -263,7 +263,7 @@ export function AdminProducao({ onMensagem }: { onMensagem: (msg: string) => voi
                   type="checkbox"
                   checked={somAtivo}
                   onChange={(e) => definirSom(e.target.checked)}
-                  className="h-4 w-4 rounded border-slate-300 text-orange-500 focus:ring-orange-400"
+                  className="h-4 w-4 rounded border-zinc-300 text-zinc-800 focus:ring-zinc-400"
                 />
                 Som em novo pedido
               </label>
@@ -277,7 +277,7 @@ export function AdminProducao({ onMensagem }: { onMensagem: (msg: string) => voi
                 </button>
               )}
               {notifEstado === "granted" && (
-                <span className="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-semibold text-emerald-800">
+                <span className="rounded-md border border-zinc-200 bg-zinc-50 px-3 py-2 text-xs font-medium text-zinc-700">
                   Notificações ativas
                 </span>
               )}
@@ -293,14 +293,14 @@ export function AdminProducao({ onMensagem }: { onMensagem: (msg: string) => voi
                   type="checkbox"
                   checked={autoRefresh}
                   onChange={(e) => setAutoRefresh(e.target.checked)}
-                  className="h-4 w-4 rounded border-slate-300 text-orange-500 focus:ring-orange-400"
+                  className="h-4 w-4 rounded border-zinc-300 text-zinc-800 focus:ring-zinc-400"
                 />
                 Atualizar sozinho (~22s)
               </label>
               <button
                 type="button"
                 onClick={() => void carregar()}
-                className="rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white shadow-md transition hover:bg-slate-800"
+                className="rounded-md bg-zinc-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-zinc-800"
               >
                 Atualizar agora
               </button>
@@ -310,7 +310,7 @@ export function AdminProducao({ onMensagem }: { onMensagem: (msg: string) => voi
 
         {loading ? (
           <div className="flex justify-center py-20">
-            <div className="h-10 w-10 animate-spin rounded-full border-2 border-orange-500 border-t-transparent" />
+            <div className="h-10 w-10 animate-spin rounded-full border-2 border-zinc-200 border-t-zinc-800" />
           </div>
         ) : (
           <>
@@ -318,14 +318,12 @@ export function AdminProducao({ onMensagem }: { onMensagem: (msg: string) => voi
               {COLUNAS.map((col) => (
                 <div
                   key={col.key}
-                  className={`flex min-h-[280px] flex-col rounded-2xl border-2 bg-white/90 shadow-inner shadow-slate-100/80 ${col.borda}`}
+                  className={`flex min-h-[280px] flex-col rounded-lg border bg-white shadow-sm ${col.borda}`}
                 >
-                  <div
-                    className={`rounded-t-xl bg-gradient-to-r px-4 py-3 text-white shadow-sm ${col.cor}`}
-                  >
+                  <div className={`rounded-t-lg px-4 py-3 text-white shadow-sm ${col.cor}`}>
                     <p className="text-base font-bold">{col.titulo}</p>
                     <p className="text-xs font-medium text-white/90">{col.subtitulo}</p>
-                    <p className="mt-1 text-2xl font-black tabular-nums">{porColuna(col.key).length}</p>
+                    <p className="mt-1 text-2xl font-semibold tabular-nums">{porColuna(col.key).length}</p>
                   </div>
                   <div className="flex flex-1 flex-col gap-3 p-3">
                     {porColuna(col.key).length === 0 ? (
@@ -347,7 +345,7 @@ export function AdminProducao({ onMensagem }: { onMensagem: (msg: string) => voi
             </div>
 
             {concluidosHoje.length > 0 && (
-              <div className="mt-2 rounded-2xl border border-slate-200 bg-slate-50/80 p-4">
+              <div className="mt-2 rounded-lg border border-zinc-200 bg-zinc-50/80 p-4">
                 <p className="text-xs font-bold uppercase tracking-wider text-slate-500">Finalizados hoje</p>
                 <ul className="mt-2 flex flex-wrap gap-2">
                   {concluidosHoje.map((p) => (
@@ -401,10 +399,10 @@ function PedidoCardProducao({
     coluna === "recebido" ? "Iniciar preparo" : coluna === "em_producao" ? "Marcar pronto" : "Finalizar pedido";
 
   return (
-    <article className="rounded-xl border border-slate-200 bg-white p-3 shadow-md transition hover:border-orange-200 hover:shadow-lg">
+    <article className="rounded-md border border-zinc-200 bg-white p-3 shadow-sm transition hover:border-zinc-300 hover:shadow-md">
       <div className="flex items-start justify-between gap-2">
         <div>
-          <span className="text-lg font-black text-orange-600">{num}</span>
+          <span className="text-lg font-semibold text-zinc-900">{num}</span>
           <span className="ml-2 text-xs font-medium text-slate-500">{formatHora(pedido.createdAt)}</span>
         </div>
         <span
@@ -439,7 +437,7 @@ function PedidoCardProducao({
         type="button"
         disabled={busy}
         onClick={() => onAvancar(proximo)}
-        className="mt-3 w-full rounded-xl bg-gradient-to-r from-orange-500 to-amber-600 py-2.5 text-sm font-bold text-white shadow-md transition hover:brightness-105 disabled:opacity-50"
+        className="mt-3 w-full rounded-md bg-zinc-900 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-zinc-800 disabled:opacity-50"
       >
         {busy ? "Salvando…" : labelBotao}
       </button>

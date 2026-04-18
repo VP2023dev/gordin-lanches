@@ -4,6 +4,19 @@ import { useCallback, useEffect, useState } from "react";
 import type { CardapioData } from "@/lib/data";
 import type { Categoria, Produto, Promocao, ConfigLoja, Acrescimo, Combo } from "@/types";
 import { AdminProducao } from "./AdminProducao";
+import { AdminNavGlyph } from "./admin/AdminNavGlyph";
+
+const ADMIN_NAV_ITEMS = [
+  { id: "config" as const, label: "Configurações" },
+  { id: "categorias" as const, label: "Categorias" },
+  { id: "produtos" as const, label: "Produtos" },
+  { id: "acrescimos" as const, label: "Acréscimos" },
+  { id: "promocoes" as const, label: "Promoções" },
+  { id: "pedidos" as const, label: "Pedidos" },
+  { id: "producao" as const, label: "Produção" },
+  { id: "combos" as const, label: "Combos" },
+  { id: "avaliacoes" as const, label: "Avaliações" },
+];
 
 interface AdminPainelProps {
   onSair: () => void;
@@ -12,6 +25,7 @@ interface AdminPainelProps {
 export function AdminPainel({ onSair }: AdminPainelProps) {
   const [data, setData] = useState<CardapioData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [menuMobileAberto, setMenuMobileAberto] = useState(false);
   const [aba, setAba] = useState<
     "config" | "categorias" | "produtos" | "acrescimos" | "promocoes" | "pedidos" | "producao" | "combos" | "avaliacoes"
   >("config");
@@ -103,10 +117,10 @@ export function AdminPainel({ onSair }: AdminPainelProps) {
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-100">
+      <div className="admin-page flex min-h-screen items-center justify-center bg-zinc-100">
         <div className="flex flex-col items-center gap-4">
-          <div className="h-10 w-10 animate-spin rounded-full border-2 border-orange-500 border-t-transparent" />
-          <p className="text-slate-600 font-medium">Carregando painel...</p>
+          <div className="h-9 w-9 animate-spin rounded-full border-2 border-zinc-300 border-t-zinc-800" />
+          <p className="text-sm font-medium text-zinc-600">A carregar painel…</p>
         </div>
       </div>
     );
@@ -114,16 +128,18 @@ export function AdminPainel({ onSair }: AdminPainelProps) {
 
   if (erro || !data) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center gap-6 bg-slate-100 px-4">
-        <div className="rounded-2xl bg-white p-8 shadow-xl border border-slate-200 max-w-md w-full text-center">
-          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-red-100 text-2xl">⚠️</div>
-          <p className="text-red-600 font-semibold">{erro || "Sem dados"}</p>
-          <p className="mt-2 text-sm text-slate-500">
+      <div className="admin-page flex min-h-screen flex-col items-center justify-center gap-6 bg-zinc-100 px-4">
+        <div className="w-full max-w-md rounded-lg border border-zinc-200 bg-white p-8 text-center shadow-sm">
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-lg border border-red-200 bg-red-50 text-sm font-bold text-red-700">
+            !
+          </div>
+          <p className="font-semibold text-red-700">{erro || "Sem dados"}</p>
+          <p className="mt-2 text-sm text-zinc-500">
             Configure NEXT_PUBLIC_SUPABASE_URL e SUPABASE_SERVICE_ROLE_KEY no .env
           </p>
           <button
             onClick={carregar}
-            className="mt-6 w-full rounded-xl bg-orange-500 px-4 py-3 font-semibold text-white shadow-lg transition hover:bg-orange-600"
+            className="mt-6 w-full rounded-md bg-zinc-900 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-zinc-800"
           >
             Tentar novamente
           </button>
@@ -132,71 +148,108 @@ export function AdminPainel({ onSair }: AdminPainelProps) {
     );
   }
 
+  const tituloAba = ADMIN_NAV_ITEMS.find((n) => n.id === aba)?.label ?? "Painel";
+
   return (
-    <div className="min-h-screen bg-slate-100 pb-12">
-      <header className="sticky top-0 z-50 bg-slate-800 shadow-lg">
-        <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-500 text-white text-lg shadow-md">⚙️</div>
-            <h1 className="text-xl font-bold text-white">Painel do Dono</h1>
+    <div className="admin-page min-h-screen bg-zinc-100 text-zinc-900">
+      <div className="fixed left-0 right-0 top-0 z-30 flex h-14 items-center gap-3 border-b border-zinc-200 bg-white px-4 lg:hidden">
+        <button
+          type="button"
+          aria-label="Abrir menu"
+          onClick={() => setMenuMobileAberto(true)}
+          className="rounded-md p-2 text-zinc-700 hover:bg-zinc-100"
+        >
+          <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+            <path strokeLinecap="round" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+        <span className="text-sm font-semibold tracking-tight text-zinc-900">{tituloAba}</span>
+      </div>
+
+      {menuMobileAberto && (
+        <button
+          type="button"
+          aria-label="Fechar menu"
+          className="fixed inset-0 z-40 bg-zinc-950/50 lg:hidden"
+          onClick={() => setMenuMobileAberto(false)}
+        />
+      )}
+
+      <div className="flex min-h-screen flex-col pt-14 lg:flex-row lg:pt-0">
+        <aside
+          className={`fixed inset-y-0 left-0 z-50 flex w-60 flex-col border-r border-zinc-800 bg-zinc-950 transition-transform duration-200 ease-out lg:static lg:translate-x-0 ${
+            menuMobileAberto ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+          }`}
+        >
+          <div className="flex items-center justify-between border-b border-zinc-800/90 px-4 py-5">
+            <div>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-zinc-500">Gestão</p>
+              <p className="mt-0.5 text-lg font-semibold tracking-tight text-white">Painel</p>
+            </div>
+            <button
+              type="button"
+              aria-label="Fechar"
+              onClick={() => setMenuMobileAberto(false)}
+              className="rounded-md p-2 text-zinc-400 hover:bg-zinc-800 hover:text-white lg:hidden"
+            >
+              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                <path strokeLinecap="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
           </div>
-          <div className="flex gap-2">
+
+          <nav className="flex flex-1 flex-col gap-0.5 overflow-y-auto px-2 py-4">
+            <p className="px-3 pb-2 text-[10px] font-semibold uppercase tracking-wider text-zinc-500">Menu</p>
+            {ADMIN_NAV_ITEMS.map((item) => {
+              const ativo = aba === item.id;
+              return (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => {
+                    setAba(item.id);
+                    setMenuMobileAberto(false);
+                  }}
+                  className={`flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-left text-sm font-medium transition ${
+                    ativo
+                      ? "bg-zinc-800 text-white"
+                      : "text-zinc-400 hover:bg-zinc-900 hover:text-zinc-100"
+                  }`}
+                >
+                  <AdminNavGlyph id={item.id} className={ativo ? "text-zinc-300" : "text-zinc-500"} />
+                  {item.label}
+                </button>
+              );
+            })}
+          </nav>
+
+          <div className="mt-auto space-y-1 border-t border-zinc-800/90 p-2">
             <a
               href="/"
               target="_blank"
               rel="noopener noreferrer"
-              className="rounded-xl border border-slate-500 bg-slate-700/50 px-4 py-2.5 text-sm font-medium text-slate-200 transition hover:bg-slate-600 hover:text-white"
+              className="flex w-full items-center justify-center rounded-md border border-zinc-700/80 bg-zinc-900/50 px-3 py-2.5 text-xs font-medium text-zinc-200 transition hover:bg-zinc-800 hover:text-white"
             >
-              Ver cardápio
+              Ver cardápio público
             </a>
             <button
+              type="button"
               onClick={onSair}
-              className="rounded-xl bg-slate-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-slate-500"
+              className="w-full rounded-md px-3 py-2.5 text-left text-xs font-medium text-zinc-500 transition hover:bg-zinc-900 hover:text-zinc-200"
             >
-              Sair
+              Terminar sessão
             </button>
           </div>
-        </div>
-        <nav className="mx-auto max-w-6xl overflow-x-auto px-4 pb-3 scrollbar-hide">
-          <div className="flex gap-2 min-w-0">
-            {(
-              [
-                "config",
-                "categorias",
-                "produtos",
-                "acrescimos",
-                "promocoes",
-                "pedidos",
-                "producao",
-                "combos",
-                "avaliacoes",
-              ] as const
-            ).map((a) => (
-                <button
-                  key={a}
-                  onClick={() => setAba(a)}
-                  className={`whitespace-nowrap rounded-xl px-4 py-2.5 text-sm font-medium transition ${
-                    aba === a
-                      ? "bg-orange-500 text-white shadow-md"
-                      : "bg-slate-700/60 text-slate-300 hover:bg-slate-600 hover:text-white"
-                  }`}
-                >
-                  {a === "config" && "Configurações"}
-                  {a === "categorias" && "Categorias"}
-                  {a === "produtos" && "Produtos"}
-                  {a === "acrescimos" && "Acréscimos"}
-                  {a === "promocoes" && "Promoções"}
-                  {a === "pedidos" && "Pedidos"}
-                  {a === "producao" && "Produção"}
-                  {a === "combos" && "Combos"}
-                  {a === "avaliacoes" && "Avaliações"}
-                </button>
-              ))}
-          </div>
-        </nav>
-      </header>
+        </aside>
 
-      <main className="mx-auto max-w-6xl px-4 py-6">
+        <div className="flex min-h-0 flex-1 flex-col lg:min-h-screen">
+          <header className="hidden border-b border-zinc-200 bg-white px-6 py-4 lg:block">
+            <h1 className="text-lg font-semibold tracking-tight text-zinc-900">{tituloAba}</h1>
+            <p className="mt-0.5 text-sm text-zinc-500">Área restrita — alterações aplicam-se ao site em tempo real.</p>
+          </header>
+
+          <main className="flex-1 overflow-y-auto px-4 py-6 lg:px-8">
+            <div className="mx-auto max-w-5xl">
         {aba === "config" && (
           <AdminConfig config={data.config} onSalvar={atualizarConfig} />
         )}
@@ -242,10 +295,13 @@ export function AdminPainel({ onSair }: AdminPainelProps) {
           />
         )}
         {aba === "avaliacoes" && <AdminAvaliacoes />}
-      </main>
+            </div>
+          </main>
+        </div>
+      </div>
 
       {toast && (
-        <div className="fixed bottom-4 right-4 z-50 max-w-xs rounded-xl bg-slate-900/90 px-4 py-3 text-sm font-medium text-slate-50 shadow-lg">
+        <div className="fixed bottom-4 right-4 z-50 max-w-sm rounded-md border border-zinc-700 bg-zinc-900 px-4 py-3 text-sm font-medium text-zinc-50 shadow-lg">
           {toast}
         </div>
       )}
@@ -290,10 +346,10 @@ function AdminConfig({
     }
   };
 
-  const inputClass = "mt-1.5 w-full rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-slate-800 shadow-sm transition focus:border-orange-400 focus:outline-none focus:ring-2 focus:ring-orange-400/30";
+  const inputClass = "mt-1.5 w-full rounded-md border border-zinc-200 bg-white px-4 py-2.5 text-sm text-zinc-900 shadow-sm transition focus:border-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900/10";
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xl shadow-slate-200/50">
-      <h2 className="text-lg font-bold text-slate-800 border-b border-slate-100 pb-3 mb-6">Configurações da Loja</h2>
+    <div className="rounded-lg border border-zinc-200/90 bg-white p-6 shadow-sm">
+      <h2 className="mb-6 border-b border-zinc-100 pb-3 text-base font-semibold tracking-tight text-zinc-900">Dados da loja</h2>
       <div className="space-y-5">
         <div>
           <label className="block text-sm font-medium text-slate-600">Logo (aparece ao lado do nome no topo)</label>
@@ -301,7 +357,9 @@ function AdminConfig({
             {form.logoUrl ? (
               <img src={form.logoUrl} alt="Logo" className="h-16 w-16 rounded-xl object-cover border border-slate-200 shadow-sm" />
             ) : (
-              <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-slate-100 text-2xl border border-slate-200">🍔</div>
+              <div className="flex h-16 w-16 items-center justify-center rounded-lg border border-zinc-200 bg-zinc-50 text-[10px] font-medium uppercase tracking-wide text-zinc-400">
+                Logo
+              </div>
             )}
             <div className="flex-1 min-w-0">
               <input type="url" value={form.logoUrl || ""} onChange={(e) => setForm({ ...form, logoUrl: e.target.value || null })} placeholder="URL da logo ou envie uma imagem" className={inputClass} />
@@ -422,7 +480,7 @@ function AdminConfig({
           <p className="mt-1 text-xs text-slate-500">Maps → Compartilhar → Incorporar um mapa → copie só o valor do src do iframe.</p>
         </div>
       </div>
-      <button onClick={() => onSalvar(form)} className="mt-6 w-full rounded-xl bg-orange-500 px-4 py-3 font-semibold text-white shadow-lg transition hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:ring-offset-2">
+      <button onClick={() => onSalvar(form)} className="mt-6 w-full rounded-md bg-zinc-900 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-zinc-400 focus:ring-offset-2">
         Salvar configurações
       </button>
     </div>
@@ -453,12 +511,12 @@ function AdminCategorias({
     );
   };
 
-  const inputClass = "rounded-xl border border-slate-200 bg-white px-3 py-2 text-slate-800 shadow-sm focus:border-orange-400 focus:outline-none focus:ring-2 focus:ring-orange-400/30";
+  const inputClass = "rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 shadow-sm focus:border-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900/10";
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xl shadow-slate-200/50">
+    <div className="rounded-lg border border-zinc-200/90 bg-white p-6 shadow-sm">
       <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 pb-4 mb-6">
         <h2 className="text-lg font-bold text-slate-800">Categorias</h2>
-        <button onClick={adicionar} className="rounded-xl bg-emerald-500 px-4 py-2.5 text-sm font-semibold text-white shadow-md transition hover:bg-emerald-600">
+        <button onClick={adicionar} className="rounded-md border border-zinc-300 bg-white px-4 py-2.5 text-sm font-semibold text-zinc-800 shadow-sm transition hover:bg-zinc-50">
           + Nova categoria
         </button>
       </div>
@@ -479,7 +537,7 @@ function AdminCategorias({
           </div>
         ))}
       </div>
-      <button onClick={() => onSalvar(lista)} className="mt-6 w-full rounded-xl bg-orange-500 px-4 py-3 font-semibold text-white shadow-lg transition hover:bg-orange-600">
+      <button onClick={() => onSalvar(lista)} className="mt-6 w-full rounded-md bg-zinc-900 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-zinc-800">
         Salvar categorias
       </button>
     </div>
@@ -511,12 +569,12 @@ function AdminAcrescimos({
     setLista(lista.map((a) => (a.id === id ? { ...a, [campo]: valor } : a)));
   };
 
-  const inputClass = "rounded-xl border border-slate-200 bg-white px-3 py-2 text-slate-800 shadow-sm focus:border-orange-400 focus:outline-none focus:ring-2 focus:ring-orange-400/30";
+  const inputClass = "rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 shadow-sm focus:border-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900/10";
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xl shadow-slate-200/50">
+    <div className="rounded-lg border border-zinc-200/90 bg-white p-6 shadow-sm">
       <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 pb-4 mb-6">
         <h2 className="text-lg font-bold text-slate-800">Acréscimos (extras nos lanches)</h2>
-        <button onClick={adicionar} className="rounded-xl bg-emerald-500 px-4 py-2.5 text-sm font-semibold text-white shadow-md transition hover:bg-emerald-600">
+        <button onClick={adicionar} className="rounded-md border border-zinc-300 bg-white px-4 py-2.5 text-sm font-semibold text-zinc-800 shadow-sm transition hover:bg-zinc-50">
           + Novo acréscimo
         </button>
       </div>
@@ -530,7 +588,7 @@ function AdminAcrescimos({
             <span className="text-sm text-slate-500">Ordem</span>
             <input type="number" value={a.ordem} onChange={(e) => atualizar(a.id, "ordem", parseInt(e.target.value) || 0)} className={`w-16 ${inputClass}`} />
             <label className="flex items-center gap-2 cursor-pointer">
-              <input type="checkbox" checked={a.ativo} onChange={(e) => atualizar(a.id, "ativo", e.target.checked)} className="h-4 w-4 rounded border-slate-300 text-orange-500 focus:ring-orange-400" />
+              <input type="checkbox" checked={a.ativo} onChange={(e) => atualizar(a.id, "ativo", e.target.checked)} className="h-4 w-4 rounded border-slate-300 text-zinc-800 focus:ring-zinc-400" />
               <span className="text-sm font-medium text-slate-600">Ativo</span>
             </label>
             <button onClick={() => remover(a.id)} className="rounded-xl bg-red-50 px-3 py-2 text-sm font-medium text-red-600 transition hover:bg-red-100">
@@ -539,7 +597,7 @@ function AdminAcrescimos({
           </div>
         ))}
       </div>
-      <button onClick={() => onSalvar(lista)} className="mt-6 w-full rounded-xl bg-orange-500 px-4 py-3 font-semibold text-white shadow-lg transition hover:bg-orange-600">
+      <button onClick={() => onSalvar(lista)} className="mt-6 w-full rounded-md bg-zinc-900 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-zinc-800">
         Salvar acréscimos
       </button>
     </div>
@@ -619,7 +677,7 @@ function AdminProdutos({
   }));
   const produtosSemCategoria = lista.filter((p) => !categorias.some((c) => c.id === p.categoriaId));
 
-  const inputClass = "rounded-xl border border-slate-200 bg-white px-3 py-2 text-slate-800 shadow-sm focus:border-orange-400 focus:outline-none focus:ring-2 focus:ring-orange-400/30";
+  const inputClass = "rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 shadow-sm focus:border-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900/10";
 
   const renderProduto = (p: Produto) => (
     <div key={p.id} className="rounded-xl border border-slate-200 bg-slate-50/50 p-4 space-y-3">
@@ -632,11 +690,11 @@ function AdminProdutos({
           ))}
         </select>
         <label className="flex items-center gap-2 cursor-pointer">
-          <input type="checkbox" checked={p.disponivel} onChange={(e) => atualizar(p.id, "disponivel", e.target.checked)} className="h-4 w-4 rounded border-slate-300 text-orange-500 focus:ring-orange-400" />
+          <input type="checkbox" checked={p.disponivel} onChange={(e) => atualizar(p.id, "disponivel", e.target.checked)} className="h-4 w-4 rounded border-slate-300 text-zinc-800 focus:ring-zinc-400" />
           <span className="text-sm font-medium text-slate-600">Disponível</span>
         </label>
         <label className="flex items-center gap-2 cursor-pointer">
-          <input type="checkbox" checked={p.destaque ?? false} onChange={(e) => atualizar(p.id, "destaque", e.target.checked)} className="h-4 w-4 rounded border-slate-300 text-orange-500 focus:ring-orange-400" />
+          <input type="checkbox" checked={p.destaque ?? false} onChange={(e) => atualizar(p.id, "destaque", e.target.checked)} className="h-4 w-4 rounded border-slate-300 text-zinc-800 focus:ring-zinc-400" />
           <span className="text-sm font-medium text-slate-600">Destaque</span>
         </label>
         <button onClick={() => remover(p.id)} className="rounded-xl bg-red-50 px-3 py-2 text-sm font-medium text-red-600 transition hover:bg-red-100">
@@ -668,7 +726,7 @@ function AdminProdutos({
   );
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xl shadow-slate-200/50">
+    <div className="rounded-lg border border-zinc-200/90 bg-white p-6 shadow-sm">
       <div className="border-b border-slate-100 pb-4 mb-6">
         <h2 className="text-lg font-bold text-slate-800">Produtos</h2>
         <p className="mt-1 text-sm text-slate-500">Organizados por categoria. Use o select em cada produto para mudar de categoria.</p>
@@ -689,7 +747,7 @@ function AdminProdutos({
               <button
                 type="button"
                 onClick={() => adicionar(categoria.id)}
-                className="rounded-xl bg-emerald-500 px-3 py-2 text-sm font-semibold text-white shadow-md transition hover:bg-emerald-600"
+                className="rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm font-semibold text-zinc-800 shadow-sm transition hover:bg-zinc-50"
               >
                 + Novo nesta categoria
               </button>
@@ -712,7 +770,7 @@ function AdminProdutos({
           </section>
         )}
       </div>
-      <button onClick={() => onSalvar(lista)} className="mt-6 w-full rounded-xl bg-orange-500 px-4 py-3 font-semibold text-white shadow-lg transition hover:bg-orange-600">
+      <button onClick={() => onSalvar(lista)} className="mt-6 w-full rounded-md bg-zinc-900 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-zinc-800">
         Salvar produtos
       </button>
     </div>
@@ -753,12 +811,12 @@ function AdminPromocoes({
     );
   };
 
-  const inputClass = "rounded-xl border border-slate-200 bg-white px-3 py-2 text-slate-800 shadow-sm focus:border-orange-400 focus:outline-none focus:ring-2 focus:ring-orange-400/30";
+  const inputClass = "rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 shadow-sm focus:border-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900/10";
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xl shadow-slate-200/50">
+    <div className="rounded-lg border border-zinc-200/90 bg-white p-6 shadow-sm">
       <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 pb-4 mb-6">
         <h2 className="text-lg font-bold text-slate-800">Promoções do Dia</h2>
-        <button onClick={adicionar} className="rounded-xl bg-emerald-500 px-4 py-2.5 text-sm font-semibold text-white shadow-md transition hover:bg-emerald-600">
+        <button onClick={adicionar} className="rounded-md border border-zinc-300 bg-white px-4 py-2.5 text-sm font-semibold text-zinc-800 shadow-sm transition hover:bg-zinc-50">
           + Nova promoção
         </button>
       </div>
@@ -769,7 +827,7 @@ function AdminPromocoes({
               <input value={promo.titulo} onChange={(e) => atualizar(promo.id, "titulo", e.target.value)} placeholder="Título" className={`flex-1 min-w-[160px] ${inputClass}`} />
               <input type="number" step="0.01" value={promo.precoPromocional ?? ""} onChange={(e) => atualizar(promo.id, "precoPromocional", e.target.value ? parseFloat(e.target.value) : undefined)} placeholder="Preço promocional" className={`w-28 ${inputClass}`} />
               <label className="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" checked={promo.ativa} onChange={(e) => atualizar(promo.id, "ativa", e.target.checked)} className="h-4 w-4 rounded border-slate-300 text-orange-500 focus:ring-orange-400" />
+                <input type="checkbox" checked={promo.ativa} onChange={(e) => atualizar(promo.id, "ativa", e.target.checked)} className="h-4 w-4 rounded border-slate-300 text-zinc-800 focus:ring-zinc-400" />
                 <span className="text-sm font-medium text-slate-600">Ativa</span>
               </label>
               <button onClick={() => remover(promo.id)} className="rounded-xl bg-red-50 px-3 py-2 text-sm font-medium text-red-600 transition hover:bg-red-100">
@@ -780,7 +838,7 @@ function AdminPromocoes({
           </div>
         ))}
       </div>
-      <button onClick={() => onSalvar(lista)} className="mt-6 w-full rounded-xl bg-orange-500 px-4 py-3 font-semibold text-white shadow-lg transition hover:bg-orange-600">
+      <button onClick={() => onSalvar(lista)} className="mt-6 w-full rounded-md bg-zinc-900 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-zinc-800">
         Salvar promoções
       </button>
     </div>
@@ -842,12 +900,12 @@ function AdminPedidos() {
   const formatPrice = (n: number) => new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(n);
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xl shadow-slate-200/50">
+    <div className="rounded-lg border border-zinc-200/90 bg-white p-6 shadow-sm">
       <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 pb-4 mb-6">
         <h2 className="text-lg font-bold text-slate-800">Pedidos</h2>
         <div className="flex items-center gap-3">
           <label className="flex items-center gap-2 cursor-pointer">
-            <input type="checkbox" checked={hoje} onChange={(e) => setHoje(e.target.checked)} className="h-4 w-4 rounded border-slate-300 text-orange-500 focus:ring-orange-400" />
+            <input type="checkbox" checked={hoje} onChange={(e) => setHoje(e.target.checked)} className="h-4 w-4 rounded border-slate-300 text-zinc-800 focus:ring-zinc-400" />
             <span className="text-sm font-medium text-slate-600">Só hoje</span>
           </label>
           <button onClick={carregar} className="rounded-xl bg-slate-100 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-200">
@@ -857,7 +915,7 @@ function AdminPedidos() {
       </div>
       {loading ? (
         <div className="flex items-center justify-center py-12">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-orange-500 border-t-transparent" />
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-zinc-300 border-t-zinc-800" />
         </div>
       ) : pedidos.length === 0 ? (
         <p className="py-8 text-center text-slate-500">Nenhum pedido encontrado.</p>
@@ -886,7 +944,7 @@ function AdminPedidos() {
                 const st = (p.statusProducao || "recebido").toLowerCase();
                 return (
                   <tr key={p.id} className="border-b border-slate-100 hover:bg-slate-50/50 transition">
-                    <td className="p-3 font-semibold text-orange-600">{numeroStr}</td>
+                    <td className="p-3 font-semibold text-zinc-800">{numeroStr}</td>
                     <td className="p-3 text-slate-700">{formatDate(p.createdAt)}</td>
                     <td className="p-3 font-medium text-slate-800">{p.nomeCliente || "—"}</td>
                     <td className="max-w-[200px] truncate p-3 text-slate-600" title={resumo}>{resumo}</td>
@@ -982,12 +1040,12 @@ function AdminCombos({
     setLista(lista.map((c) => (c.id === comboId ? { ...c, itens: c.itens.filter((_, i) => i !== idx) } : c)));
   };
 
-  const inputClass = "rounded-xl border border-slate-200 bg-white px-3 py-2 text-slate-800 shadow-sm focus:border-orange-400 focus:outline-none focus:ring-2 focus:ring-orange-400/30";
+  const inputClass = "rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 shadow-sm focus:border-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900/10";
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xl shadow-slate-200/50">
+    <div className="rounded-lg border border-zinc-200/90 bg-white p-6 shadow-sm">
       <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 pb-4 mb-6">
         <h2 className="text-lg font-bold text-slate-800">Combos</h2>
-        <button onClick={adicionar} className="rounded-xl bg-emerald-500 px-4 py-2.5 text-sm font-semibold text-white shadow-md transition hover:bg-emerald-600">
+        <button onClick={adicionar} className="rounded-md border border-zinc-300 bg-white px-4 py-2.5 text-sm font-semibold text-zinc-800 shadow-sm transition hover:bg-zinc-50">
           + Novo combo
         </button>
       </div>
@@ -998,7 +1056,7 @@ function AdminCombos({
               <input value={c.nome} onChange={(e) => atualizar(c.id, "nome", e.target.value)} placeholder="Nome do combo" className={`min-w-[180px] flex-1 ${inputClass}`} />
               <input type="number" step="0.01" value={c.preco} onChange={(e) => atualizar(c.id, "preco", parseFloat(e.target.value) || 0)} placeholder="Preço" className={`w-24 ${inputClass}`} />
               <label className="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" checked={c.ativo} onChange={(e) => atualizar(c.id, "ativo", e.target.checked)} className="h-4 w-4 rounded border-slate-300 text-orange-500 focus:ring-orange-400" />
+                <input type="checkbox" checked={c.ativo} onChange={(e) => atualizar(c.id, "ativo", e.target.checked)} className="h-4 w-4 rounded border-slate-300 text-zinc-800 focus:ring-zinc-400" />
                 <span className="text-sm font-medium text-slate-600">Ativo</span>
               </label>
               <button onClick={() => remover(c.id)} className="rounded-xl bg-red-50 px-3 py-2 text-sm font-medium text-red-600 transition hover:bg-red-100">
@@ -1018,12 +1076,12 @@ function AdminCombos({
                   <button type="button" onClick={() => removeComboItem(c.id, idx)} className="text-sm font-medium text-red-600 hover:underline">Remover</button>
                 </div>
               ))}
-              <button type="button" onClick={() => addItem(c.id)} className="text-sm font-medium text-orange-600 hover:underline">+ Adicionar item</button>
+              <button type="button" onClick={() => addItem(c.id)} className="text-sm font-medium text-zinc-800 hover:underline">+ Adicionar item</button>
             </div>
           </div>
         ))}
       </div>
-      <button onClick={() => onSalvar(lista)} className="mt-6 w-full rounded-xl bg-orange-500 px-4 py-3 font-semibold text-white shadow-lg transition hover:bg-orange-600">
+      <button onClick={() => onSalvar(lista)} className="mt-6 w-full rounded-md bg-zinc-900 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-zinc-800">
         Salvar combos
       </button>
     </div>
@@ -1051,7 +1109,7 @@ function AdminAvaliacoes() {
   const formatDate = (s: string) => new Date(s).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", year: "2-digit", hour: "2-digit", minute: "2-digit" });
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-xl shadow-slate-200/50">
+    <div className="rounded-lg border border-zinc-200/90 bg-white p-6 shadow-sm">
       <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-100 pb-4 mb-6">
         <h2 className="text-lg font-bold text-slate-800">Avaliações</h2>
         <button onClick={carregar} className="rounded-xl bg-slate-100 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-200">
@@ -1060,7 +1118,7 @@ function AdminAvaliacoes() {
       </div>
       {loading ? (
         <div className="flex items-center justify-center py-12">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-orange-500 border-t-transparent" />
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-zinc-300 border-t-zinc-800" />
         </div>
       ) : avaliacoes.length === 0 ? (
         <p className="py-8 text-center text-slate-500">Nenhuma avaliação ainda.</p>
@@ -1069,7 +1127,7 @@ function AdminAvaliacoes() {
           {avaliacoes.map((a) => (
             <li key={a.id} className="rounded-xl border border-slate-200 bg-slate-50/50 p-4">
               <div className="flex items-center justify-between gap-2 flex-wrap">
-                <span className="text-lg text-amber-500">{["", "★", "★★", "★★★", "★★★★", "★★★★★"][a.nota] || a.nota + " estrelas"}</span>
+                <span className="text-lg text-zinc-500 tabular-nums">{["", "★", "★★", "★★★", "★★★★", "★★★★★"][a.nota] || `${a.nota} estrelas`}</span>
                 <span className="text-xs text-slate-500">{formatDate(a.createdAt)}</span>
               </div>
               {a.comentario && <p className="mt-2 text-sm text-slate-600">{a.comentario}</p>}

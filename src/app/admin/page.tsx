@@ -40,32 +40,36 @@ export default function AdminPage() {
 
   if (!autenticado) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-100 px-4">
+      <div className="admin-page flex min-h-screen items-center justify-center bg-zinc-100 px-4">
         <form
           onSubmit={handleLogin}
-          className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-8 shadow-xl shadow-slate-200/50"
+          className="w-full max-w-md rounded-lg border border-zinc-200 bg-white p-8 shadow-sm"
         >
           <div className="mb-6 flex justify-center">
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-slate-800 text-2xl shadow-lg">⚙️</div>
+            <div className="flex h-12 w-12 items-center justify-center rounded-lg border border-zinc-200 bg-zinc-900 text-white">
+              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} aria-hidden>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21M3 3h12m-.75 4.5H21m-3.75 3.75h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008zm0 3h.008v.008h-.008v-.008z" />
+              </svg>
+            </div>
           </div>
-          <h1 className="mb-1 text-center text-xl font-bold text-slate-800">
-            Painel do Dono
+          <h1 className="mb-1 text-center text-lg font-semibold tracking-tight text-zinc-900">
+            Acesso ao painel
           </h1>
-          <p className="mb-6 text-center text-sm text-slate-500">
-            Digite a senha para acessar
+          <p className="mb-6 text-center text-sm text-zinc-500">
+            Introduza a palavra-passe administrativa
           </p>
           <input
             type="password"
             value={senha}
             onChange={(e) => setSenha(e.target.value)}
             placeholder="Senha"
-            className="mb-4 w-full rounded-xl border border-slate-200 bg-white px-4 py-3.5 text-slate-800 shadow-sm transition focus:border-orange-400 focus:outline-none focus:ring-2 focus:ring-orange-400/30"
+            className="mb-4 w-full rounded-md border border-zinc-200 bg-white px-4 py-3 text-sm text-zinc-900 shadow-sm transition focus:border-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900/10"
             autoFocus
           />
           {erro && <p className="mb-4 text-sm font-medium text-red-600">{erro}</p>}
           <button
             type="submit"
-            className="w-full rounded-xl bg-orange-500 py-3.5 font-semibold text-white shadow-lg transition hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:ring-offset-2"
+            className="w-full rounded-md bg-zinc-900 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-zinc-400 focus:ring-offset-2"
           >
             Entrar
           </button>

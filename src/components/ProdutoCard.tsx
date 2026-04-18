@@ -57,7 +57,7 @@ export function ProdutoCard({ produto, acrescimos }: ProdutoCardProps) {
 
   return (
     <>
-      <article className="cardapio-card-produto group flex h-full flex-col overflow-hidden rounded-xl border border-[var(--card-border)] bg-[var(--card-bg)] shadow-[var(--shadow-card)] hover:border-[var(--border-strong)] hover:shadow-[var(--shadow-hover)]">
+      <article className="cardapio-card-produto group flex h-full flex-col overflow-hidden rounded-lg border border-[var(--card-border)] bg-[var(--card-bg)] shadow-[var(--shadow-card)] hover:border-zinc-300 hover:shadow-[var(--shadow-hover)]">
         <div className="relative aspect-[5/3] w-full shrink-0 overflow-hidden bg-neutral-100">
           <img
             src={imgSrc}
@@ -66,7 +66,7 @@ export function ProdutoCard({ produto, acrescimos }: ProdutoCardProps) {
           />
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/15 via-transparent to-transparent" />
           {produto.destaque && (
-            <span className="absolute left-2.5 top-2.5 rounded-md bg-[var(--accent)] px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white shadow-sm">
+            <span className="absolute left-2.5 top-2.5 rounded border border-zinc-800/10 bg-zinc-900 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-white">
               Destaque
             </span>
           )}
@@ -88,10 +88,10 @@ export function ProdutoCard({ produto, acrescimos }: ProdutoCardProps) {
             <button
               type="button"
               onClick={handleClickAdicionar}
-              className={`flex shrink-0 items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-semibold transition active:scale-[0.98] ${
+              className={`flex shrink-0 items-center gap-1.5 rounded-md px-4 py-2 text-sm font-semibold transition active:scale-[0.99] ${
                 adicionado
-                  ? "bg-emerald-600 text-white"
-                  : "btn-accent text-white"
+                  ? "border border-zinc-600 bg-zinc-700 text-white"
+                  : "bg-zinc-900 text-white hover:bg-zinc-800"
               }`}
             >
               {adicionado ? (

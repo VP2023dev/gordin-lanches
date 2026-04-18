@@ -138,7 +138,7 @@ export function ModalAdicionar({
                         <button
                           type="button"
                           onClick={() => alterarExtra(a.id, 1)}
-                          className="flex h-8 w-8 items-center justify-center rounded-lg btn-accent text-sm font-bold text-white"
+                          className="flex h-8 w-8 items-center justify-center rounded-md bg-zinc-900 text-sm font-bold text-white hover:bg-zinc-800"
                         >
                           +
                         </button>
@@ -158,7 +158,7 @@ export function ModalAdicionar({
             <button
               type="button"
               onClick={handleConfirmar}
-              className="btn-accent w-full rounded-xl py-3.5 font-bold text-white transition hover:brightness-110 active:scale-[0.99]"
+              className="w-full rounded-md bg-zinc-900 py-3.5 text-sm font-semibold text-white transition hover:bg-zinc-800 active:scale-[0.99]"
             >
               Adicionar ao carrinho
             </button>
