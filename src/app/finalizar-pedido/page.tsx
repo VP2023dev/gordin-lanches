@@ -12,7 +12,11 @@ const FORMAS_PAGAMENTO = [
   { id: "cartao", label: "Cartão (débito/crédito)" },
 ] as const;
 
+/** Coloque `true` quando a Stripe liberar PIX na conta e `NEXT_PUBLIC_STRIPE_PIX=1` no ambiente. */
+const STRIPE_CHECKOUT_PIX_ENABLED = false;
+
 function stripePixCheckoutHabilitado() {
+  if (!STRIPE_CHECKOUT_PIX_ENABLED) return false;
   const raw = process.env.NEXT_PUBLIC_STRIPE_PIX;
   if (raw == null || String(raw).trim() === "") return false;
   const v = String(raw).toLowerCase().trim();
